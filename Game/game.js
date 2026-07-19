@@ -969,20 +969,13 @@ function tryTransform() {
   playEnergyExplosionSound();
   pulseTone({ frequency: 170, glideTo: 900, duration: 0.45, gain: 0.09, type: "sawtooth" });
   queueTransformStep(() => {
-    elements.shell.classList.add("is-vanishing");
-    flashScreen(0.7);
-    shakeScreen(16);
-  }, 120);
-  queueTransformStep(() => {
-    elements.shell.classList.remove("is-vanishing");
     if (unlocking) {
       state.highestUnlocked = nextIndex;
     }
     setCurrentForm(nextIndex);
-    elements.shell.classList.add("is-reappearing");
-    flashScreen(0.6);
-    shakeScreen(14);
-    spawnParticles(40, {
+    flashScreen(0.7);
+    shakeScreen(16);
+    spawnParticles(35, {
       speedMin: 32,
       speedMax: 110,
       sizeMin: 2,
@@ -994,7 +987,7 @@ function tryTransform() {
       lift: 30,
       palette: [nextForm.auraColor, nextForm.accentColor, "#ffffff"],
     });
-  }, 420);
+  }, 180);
   queueTransformStep(() => {
     if (unlocking) {
       state.visibleLevel = nextForm.level;
