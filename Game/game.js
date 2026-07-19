@@ -1130,47 +1130,10 @@ function renderParticles(deltaSeconds) {
   }
 
   if (isActive && lv && !lv.paused && !lv.ended) {
-    if (!state.offscreenLightningCanvas) {
-      state.offscreenLightningCanvas = document.createElement("canvas");
-      state.offscreenLightningCtx = state.offscreenLightningCanvas.getContext("2d");
-    }
-
     const rawWidth = lv.videoWidth;
     const rawHeight = lv.videoHeight;
 
     if (rawWidth > 0 && rawHeight > 0) {
-      // Process at 0.5x scale for high performance
-      const scaleFactor = 0.5;
-      const vWidth = Math.floor(rawWidth * scaleFactor);
-      const vHeight = Math.floor(rawHeight * scaleFactor);
-
-      state.offscreenLightningCanvas.width = vWidth;
-      state.offscreenLightningCanvas.height = vHeight;
-
-      // Draw current frame
-      state.offscreenLightningCtx.drawImage(lv, 0, 0, vWidth, vHeight);
-
-      // Perform chroma-key (remove green background and dark/black frames)
-      const frame = state.offscreenLightningCtx.getImageData(0, 0, vWidth, vHeight);
-      const data = frame.data;
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        // Robust relative green keying condition for new lightning video
-        if (g > 90 && g > r * 1.09 && g > b * 1.09) {
-          data[i + 3] = 0;
-        } else if (r < 30 && g < 30 && b < 30) {
-          // Key out black/dark frames or pixels
-          data[i + 3] = 0;
-        }
-      }
-
-      state.offscreenLightningCtx.putImageData(frame, 0, 0);
-
-      // Draw the keyed frame onto the main canvas
       const mainW = elements.canvas.width;
       const mainH = elements.canvas.height;
 
@@ -1181,15 +1144,10 @@ function renderParticles(deltaSeconds) {
 
       let srcX = 0;
       let srcY = 0;
-      let srcW = vWidth;
-      let srcH = vHeight;
+      let srcW = rawWidth;
+      let srcH = rawHeight;
 
       if (lv === state.baseLightningVideo || lv === state.beastLightningVideo || lv === state.ssj123LightningVideo || lv === state.superUltraVideo || lv === state.falseSsjVideo || lv === state.kaiokenVideo || lv === state.transitionVideo) {
-        // ==============================================================
-        //  LEVEL 1 BASE CHARACTER LIGHTNING GREEN SCREEN SIZE & POSITION
-        //  This binds the lightning video EXACTLY to the character's sprite bounds
-        //  so it is perfectly centered, scaled, with no cuts or offsets.
-        // ==============================================================
         const spriteRect = elements.spriteLayer.getBoundingClientRect();
         const canvasRect = elements.canvas.getBoundingClientRect();
 
@@ -1197,36 +1155,26 @@ function renderParticles(deltaSeconds) {
         destH = spriteRect.height;
         destX = spriteRect.left - canvasRect.left;
         destY = spriteRect.top - canvasRect.top;
-
-        // No cropping/cutting: display the full video frame fitted to the sprite bounds
-        srcX = 0;
-        srcY = 0;
-        srcW = vWidth;
-        srcH = vHeight;
       } else {
-        // Calculate crop to maintain cover aspect ratio for standard full screen lightning
         const targetAspect = destW / destH;
-        const videoAspect = vWidth / vHeight;
+        const videoAspect = rawWidth / rawHeight;
 
         if (videoAspect > targetAspect) {
-          srcW = vHeight * targetAspect;
-          srcX = (vWidth - srcW) / 2;
+          srcW = rawHeight * targetAspect;
+          srcX = (rawWidth - srcW) / 2;
         } else {
-          srcH = vWidth / targetAspect;
-          srcY = (vHeight - srcH) / 2;
+          srcH = rawWidth / targetAspect;
+          srcY = (rawHeight - srcH) / 2;
         }
       }
 
-      // Draw lightning/transition with appropriate composite operation
       ctx.save();
       if (lv === state.transitionVideo) {
-        // Draw the transition video opaquely to hide the character swap
         ctx.globalCompositeOperation = "source-over";
       } else {
-        // Blend lightning/auras using screen mode
         ctx.globalCompositeOperation = "screen";
       }
-      ctx.drawImage(state.offscreenLightningCanvas, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
+      ctx.drawImage(lv, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
       ctx.restore();
     }
   }
