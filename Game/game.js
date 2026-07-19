@@ -1040,7 +1040,11 @@ function handleTap(clientX, clientY) {
     state.jumpElapsed = 0;
   }
 
-  elements.spriteLayer.src = getForm().power;
+  const targetPowerSrc = getForm().power;
+  if (state.lastAppliedSpriteSrc !== targetPowerSrc) {
+    state.lastAppliedSpriteSrc = targetPowerSrc;
+    elements.spriteLayer.src = targetPowerSrc;
+  }
   spawnTapBurst(clientX, clientY);
   animateImpactRing();
   flashScreen(0.16);
