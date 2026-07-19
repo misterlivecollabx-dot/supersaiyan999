@@ -700,6 +700,11 @@ function tapIntensity() {
 }
 
 function spawnParticles(count, options = {}) {
+  // Cap active particles for 60 FPS mobile performance
+  if (state.particles.length > 40) {
+    state.particles.splice(0, state.particles.length - 30);
+  }
+
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
   const rawX = options.x ?? (rect.left + rect.width / 2);
@@ -1053,13 +1058,15 @@ function renderParticles(deltaSeconds) {
     const rawHeight = state.impactVideo.videoHeight;
 
     if (rawWidth > 0 && rawHeight > 0) {
-      // Process at 0.5x scale for high performance (60 FPS)
-      const scaleFactor = 0.5;
+      // Process at 0.35x scale for high performance (60 FPS on mobile CPUs)
+      const scaleFactor = 0.35;
       const vWidth = Math.floor(rawWidth * scaleFactor);
       const vHeight = Math.floor(rawHeight * scaleFactor);
 
-      state.offscreenCanvas.width = vWidth;
-      state.offscreenCanvas.height = vHeight;
+      if (state.offscreenCanvas.width !== vWidth || state.offscreenCanvas.height !== vHeight) {
+        state.offscreenCanvas.width = vWidth;
+        state.offscreenCanvas.height = vHeight;
+      }
 
       // Draw current video frame scaled down
       state.offscreenCtx.drawImage(state.impactVideo, 0, 0, vWidth, vHeight);

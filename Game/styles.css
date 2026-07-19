@@ -236,6 +236,16 @@ button {
   -webkit-backdrop-filter: blur(16px);
 }
 
+@media (max-width: 768px) {
+  .top-panel,
+  .energy-panel,
+  .form-chip,
+  .intro-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 .top-panel {
   position: relative;
   padding: 10px 12px 14px;
@@ -549,7 +559,8 @@ button {
 .aura-layer {
   width: 112%;
   height: 80%;
-  transform: translateX(-50%) scale(calc(1 + var(--charge) * 0.08 + var(--aura-pulse, 0)));
+  will-change: transform, opacity;
+  transform: translateX(-50%) scale(calc(1 + var(--charge) * 0.08 + var(--aura-pulse, 0))) translateZ(0);
   opacity: 0;
   filter:
     drop-shadow(0 0 16px color-mix(in srgb, var(--aura-color) 55%, transparent))
@@ -561,7 +572,8 @@ button {
 .sprite-layer {
   width: 96%;
   height: 98%;
-  transform: translateX(calc(-50% + var(--sprite-offset-x) + var(--sprite-shake-x, 0px))) translateY(calc(var(--sprite-offset-y) + var(--sprite-lift, 0px) + var(--sprite-float, 0px) + var(--sprite-shake-y, 0px)));
+  will-change: transform;
+  transform: translateX(calc(-50% + var(--sprite-offset-x) + var(--sprite-shake-x, 0px))) translateY(calc(var(--sprite-offset-y) + var(--sprite-lift, 0px) + var(--sprite-float, 0px) + var(--sprite-shake-y, 0px))) translateZ(0);
   filter:
     drop-shadow(0 14px 18px rgba(0, 0, 0, 0.38))
     drop-shadow(0 0 18px color-mix(in srgb, var(--accent-color) 18%, transparent));
