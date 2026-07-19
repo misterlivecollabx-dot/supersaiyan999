@@ -565,10 +565,10 @@ button {
   transform: translateX(-50%) scale(calc(1 + var(--charge) * 0.08 + var(--aura-pulse, 0))) translateZ(0);
   opacity: 0;
   filter:
-    drop-shadow(0 0 16px color-mix(in srgb, var(--aura-color) 55%, transparent))
-    drop-shadow(0 0 38px color-mix(in srgb, var(--accent-color) 30%, transparent));
+    drop-shadow(0 0 18px var(--aura-color, #6ac9ff))
+    drop-shadow(0 0 32px var(--accent-color, #8cf0ff));
   mix-blend-mode: screen;
-  transition: opacity 220ms ease, filter 160ms linear;
+  transition: opacity 220ms ease;
 }
 
 .sprite-layer {
@@ -576,10 +576,7 @@ button {
   height: 98%;
   will-change: transform;
   transform: translateX(calc(-50% + var(--sprite-offset-x) + var(--sprite-shake-x, 0px))) translateY(calc(var(--sprite-offset-y) + var(--sprite-lift, 0px) + var(--sprite-float, 0px) + var(--sprite-shake-y, 0px))) translateZ(0);
-  filter:
-    drop-shadow(0 14px 18px rgba(0, 0, 0, 0.38))
-    drop-shadow(0 0 18px color-mix(in srgb, var(--accent-color) 18%, transparent));
-  transition: filter 120ms linear;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.52));
 }
 
 .impact-ring {
@@ -608,8 +605,8 @@ button {
   bottom: 0;
   background: 
     linear-gradient(135deg, #7a6353 0%, #47382d 45%, #261e18 100%);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.52));
-  transform: translateY(calc(var(--rock-y, 18px))) rotate(var(--rock-r, 0deg));
+  will-change: transform, opacity;
+  transform: translateY(calc(var(--rock-y, 18px))) rotate(var(--rock-r, 0deg)) translateZ(0);
 }
 
 .rock-1 { 
@@ -923,7 +920,7 @@ button {
   animation: power-shift 0.18s linear infinite alternate;
   filter:
     drop-shadow(0 16px 24px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 0 22px color-mix(in srgb, var(--accent-color) 22%, transparent))
+    drop-shadow(0 0 18px var(--accent-color, #8cf0ff))
     brightness(calc(1 + var(--intensity) * 0.08));
 }
 
@@ -948,7 +945,7 @@ button {
   opacity: 0;
   transform: translateX(calc(-50% + var(--sprite-offset-x))) translateY(calc(var(--sprite-offset-y) - 10px)) scale(0.78);
   filter:
-    drop-shadow(0 0 30px color-mix(in srgb, var(--accent-color) 56%, transparent))
+    drop-shadow(0 0 24px var(--accent-color, #8cf0ff))
     brightness(1.45);
 }
 
@@ -956,7 +953,7 @@ button {
   opacity: 1;
   transform: translateX(calc(-50% + var(--sprite-offset-x))) translateY(var(--sprite-offset-y)) scale(1.08);
   filter:
-    drop-shadow(0 0 34px color-mix(in srgb, var(--accent-color) 58%, transparent))
+    drop-shadow(0 0 28px var(--accent-color, #8cf0ff))
     brightness(1.12);
 }
 
@@ -976,8 +973,8 @@ button {
 }
 
 @keyframes aura-pulse {
-  0%, 100% { transform: translateX(-50%) scale(0.98); filter: drop-shadow(0 0 16px color-mix(in srgb, var(--aura-color) 60%, transparent)) drop-shadow(0 0 38px color-mix(in srgb, var(--accent-color) 32%, transparent)); }
-  50% { transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 0 26px color-mix(in srgb, var(--aura-color) 76%, transparent)) drop-shadow(0 0 56px color-mix(in srgb, var(--accent-color) 44%, transparent)); }
+  0%, 100% { transform: translateX(-50%) scale(0.98); opacity: 0.82; }
+  50% { transform: translateX(-50%) scale(1.04); opacity: 1.0; }
 }
 
 @keyframes charge-wave {
