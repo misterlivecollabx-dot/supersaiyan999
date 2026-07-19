@@ -685,7 +685,9 @@ function resizeCanvas() {
   document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
   document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
 
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window);
+  const maxDpr = isMobileDevice ? 1.25 : 2.0;
+  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
   elements.canvas.width = Math.floor(shellWidth * dpr);
   elements.canvas.height = Math.floor(vh * dpr);
   elements.canvas.style.width = `${shellWidth}px`;
