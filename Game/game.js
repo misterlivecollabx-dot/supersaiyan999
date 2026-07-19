@@ -1053,8 +1053,10 @@ function handleManualSwitch(index) {
 function renderParticles(deltaSeconds) {
   ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
 
+  const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+
   // Draw and process reversed impact video frame if active (Level 1 only)
-  if (state.videoActive && state.visibleLevel === 1 && state.impactVideo && !state.impactVideo.paused && !state.impactVideo.ended) {
+  if (!isMobile && state.videoActive && state.visibleLevel === 1 && state.impactVideo && !state.impactVideo.paused && !state.impactVideo.ended) {
     if (!state.offscreenCanvas) {
       state.offscreenCanvas = document.createElement("canvas");
       state.offscreenCtx = state.offscreenCanvas.getContext("2d");
@@ -1135,7 +1137,10 @@ function renderParticles(deltaSeconds) {
     isActive = true;
   }
 
-  if (isActive && lv && !lv.paused && !lv.ended && (lv.readyState ?? 0) >= 3) {
+  // Bypass MP4 video canvas drawing on mobile devices to prevent GPU YUV green box artifacts
+  const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+
+  if (!isMobile && isActive && lv && !lv.paused && !lv.ended && (lv.readyState ?? 0) >= 3) {
     if (!state.offscreenLightningCanvas) {
       state.offscreenLightningCanvas = document.createElement("canvas");
       state.offscreenLightningCtx = state.offscreenLightningCanvas.getContext("2d");
