@@ -285,7 +285,10 @@ function updateTheme() {
   document.documentElement.style.setProperty("--sprite-offset-y", `${poseAdjust.y ?? 0}%`);
   const bgSrc = GAME_DATA.backgrounds[form.level];
   state.currentBgSrc = bgSrc;
-  elements.background.src = bgSrc;
+  if (state.lastAppliedBgSrc !== bgSrc) {
+    state.lastAppliedBgSrc = bgSrc;
+    elements.background.src = bgSrc;
+  }
   // Reset crater overlay when switching forms
   elements.backgroundCrater.style.backgroundImage = "";
   elements.backgroundCrater.style.opacity = "0";
@@ -375,7 +378,10 @@ function renderFormStrip() {
     })
     .join("");
 
-  elements.formStrip.innerHTML = markup;
+  if (state.lastAppliedStripMarkup !== markup) {
+    state.lastAppliedStripMarkup = markup;
+    elements.formStrip.innerHTML = markup;
+  }
 
   const leftArrow = document.getElementById("levelLeftArrow");
   if (leftArrow) {
