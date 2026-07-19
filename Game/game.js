@@ -356,32 +356,65 @@ function getVisibleFormIndices() {
 
 function renderFormStrip() {
   const visibleIndices = getVisibleFormIndices();
-  const markup = visibleIndices
-    .map((form) => {
-      const realIndex = form;
+  
+  let chips = elements.formStrip.querySelectorAll(".form-chip");
+  if (chips.length !== 5) {
+    elements.formStrip.innerHTML = visibleIndices.map((realIndex) => {
       const formData = GAME_DATA.forms[realIndex];
-      const unlocked = realIndex <= state.highestUnlocked;
-      const active = realIndex === state.currentIndex;
       const slotNumber = (realIndex % 5) + 1;
       const thumbCrop = formData.thumbCrop ?? { x: 50, y: 20, scale: 2.56 };
-
       return `
-        <button class="form-chip ${unlocked ? "" : "is-locked"} ${active ? "is-active" : ""}" data-form-index="${realIndex}" aria-label="${formData.name}">
+        <button class="form-chip" data-form-index="${realIndex}">
           <div class="chip-thumb">
             <img src="${formData.stand}" alt="" style="--thumb-x:${thumbCrop.x}%; --thumb-y:${thumbCrop.y}%; --thumb-scale:${thumbCrop.scale};" />
-            ${unlocked ? "" : '<div class="chip-lock" aria-hidden="true">🔒</div>'}
+            <div class="chip-lock" aria-hidden="true">🔒</div>
           </div>
           <div class="chip-number">${slotNumber}</div>
           <div class="chip-label">${formData.name}</div>
         </button>
       `;
-    })
-    .join("");
-
-  if (state.lastAppliedStripMarkup !== markup) {
-    state.lastAppliedStripMarkup = markup;
-    elements.formStrip.innerHTML = markup;
+    }).join("");
+    chips = elements.formStrip.querySelectorAll(".form-chip");
   }
+
+  visibleIndices.forEach((realIndex, idx) => {
+    const chip = chips[idx];
+    if (!chip) return;
+
+    const formData = GAME_DATA.forms[realIndex];
+    const unlocked = realIndex <= state.highestUnlocked;
+    const active = realIndex === state.currentIndex;
+    const slotNumber = (realIndex % 5) + 1;
+    const thumbCrop = formData.thumbCrop ?? { x: 50, y: 20, scale: 2.56 };
+
+    chip.dataset.formIndex = realIndex;
+    chip.setAttribute("aria-label", formData.name);
+    chip.classList.toggle("is-locked", !unlocked);
+    chip.classList.toggle("is-active", active);
+
+    const img = chip.querySelector(".chip-thumb img");
+    if (img && img.getAttribute("src") !== formData.stand) {
+      img.src = formData.stand;
+      img.style.setProperty("--thumb-x", `${thumbCrop.x}%`);
+      img.style.setProperty("--thumb-y", `${thumbCrop.y}%`);
+      img.style.setProperty("--thumb-scale", `${thumbCrop.scale}`);
+    }
+
+    const lock = chip.querySelector(".chip-lock");
+    if (lock) {
+      lock.style.display = unlocked ? "none" : "block";
+    }
+
+    const num = chip.querySelector(".chip-number");
+    if (num && num.textContent !== `${slotNumber}`) {
+      num.textContent = `${slotNumber}`;
+    }
+
+    const label = chip.querySelector(".chip-label");
+    if (label && label.textContent !== formData.name) {
+      label.textContent = formData.name;
+    }
+  });
 
   const leftArrow = document.getElementById("levelLeftArrow");
   if (leftArrow) {
