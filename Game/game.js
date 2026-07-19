@@ -267,7 +267,7 @@ function isFinalForm() {
 }
 
 function isCharging(now = performance.now()) {
-  return state.transforming || now - state.lastTapAt <= 2000;
+  return state.transforming || now - state.lastTapAt <= 1000;
 }
 
 function chargeRatio() {
@@ -1135,7 +1135,7 @@ function renderParticles(deltaSeconds) {
     isActive = true;
   }
 
-  if (isActive && lv && !lv.paused && !lv.ended) {
+  if (isActive && lv && !lv.paused && !lv.ended && (lv.readyState ?? 0) >= 3) {
     const rawWidth = lv.videoWidth;
     const rawHeight = lv.videoHeight;
 
@@ -1175,11 +1175,7 @@ function renderParticles(deltaSeconds) {
       }
 
       ctx.save();
-      if (lv === state.transitionVideo) {
-        ctx.globalCompositeOperation = "source-over";
-      } else {
-        ctx.globalCompositeOperation = "screen";
-      }
+      ctx.globalCompositeOperation = "screen";
       ctx.drawImage(lv, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
       ctx.restore();
     }
