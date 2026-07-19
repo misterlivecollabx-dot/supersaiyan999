@@ -1087,9 +1087,9 @@ function renderParticles(deltaSeconds) {
         const b = data[i + 2];
 
         // Robust relative green keying condition
-        if (g > 90 && g > r * 1.09 && g > b * 1.09) {
+        if (g > 45 && g > r * 0.98 && g > b * 0.98) {
           data[i + 3] = 0;
-        } else if (r < 15 && g < 15 && b < 15) {
+        } else if (r < 25 && g < 25 && b < 25) {
           // Key out any black noise/borders
           data[i + 3] = 0;
         }
@@ -1168,7 +1168,7 @@ function renderParticles(deltaSeconds) {
         const b = data[i + 2];
 
         // Key out green screen background (#00FF00) and black noise
-        if (g > 80 && g > r * 1.08 && g > b * 1.08) {
+        if (g > 45 && g > r * 0.98 && g > b * 0.98) {
           data[i + 3] = 0;
         } else if (r < 25 && g < 25 && b < 25) {
           data[i + 3] = 0;
