@@ -290,8 +290,11 @@ function updateTheme() {
   elements.backgroundCrater.style.backgroundImage = "";
   elements.backgroundCrater.style.opacity = "0";
   elements.levelPill.textContent = `LEVEL ${state.visibleLevel}`;
+  const targetSpriteSrc = charging ? form.power : form.stand;
+  state.lastAppliedSpriteSrc = targetSpriteSrc;
+  elements.spriteLayer.src = targetSpriteSrc;
+  state.lastAppliedAuraSrc = form.aura;
   elements.auraLayer.src = form.aura;
-  elements.spriteLayer.src = charging ? form.power : form.stand;
   syncAudio(true);
 }
 
@@ -1275,21 +1278,27 @@ function updateVisualState(now) {
   const auraCharge = visualAuraCharge(now);
   elements.shell.classList.toggle("is-charging", charging);
   elements.shell.classList.toggle("is-idle", !charging && !state.transforming);
-  elements.spriteLayer.src = charging ? form.power : form.stand;
+
+  // Guard spriteLayer.src changes so browser doesn't re-parse image texture on every frame
+  const targetSpriteSrc = charging ? form.power : form.stand;
+  if (state.lastAppliedSpriteSrc !== targetSpriteSrc) {
+    state.lastAppliedSpriteSrc = targetSpriteSrc;
+    elements.spriteLayer.src = targetSpriteSrc;
+  }
 
   if (elements.shell.classList.contains("is-vanishing")) {
     elements.auraLayer.style.opacity = "0";
     elements.auraLayer.style.visibility = "hidden";
   } else {
-    elements.auraLayer.style.opacity = charging ? `${0.76 + tapIntensity() * 0.18}` : "0";
+    elements.auraLayer.style.opacity = charging ? `${(0.76 + tapIntensity() * 0.18).toFixed(2)}` : "0";
     elements.auraLayer.style.visibility = charging ? "visible" : "hidden";
   }
 
-  if (!charging && !state.transforming) {
-    elements.auraLayer.src = "";
-  } else if (elements.auraLayer.src !== form.aura) {
+  if (form.aura && state.lastAppliedAuraSrc !== form.aura) {
+    state.lastAppliedAuraSrc = form.aura;
     elements.auraLayer.src = form.aura;
   }
+
   document.documentElement.style.setProperty("--charge", `${auraCharge.toFixed(3)}`);
   document.documentElement.style.setProperty("--intensity", `${tapIntensity().toFixed(3)}`);
 }
