@@ -783,41 +783,59 @@ function spawnArc(options = {}) {
 }
 
 function spawnTapBurst(x, y) {
-  spawnParticles(12, {
+  spawnParticles(14, {
     x,
     y,
-    speedMin: 16,
-    speedMax: 44,
-    sizeMin: 2,
-    sizeMax: 6,
+    speedMin: 18,
+    speedMax: 48,
+    sizeMin: 2.5,
+    sizeMax: 6.5,
     lifeMin: 0.24,
     lifeMax: 0.52,
-    scatterX: 18,
-    scatterY: 18,
-    lift: 26,
+    scatterX: 20,
+    scatterY: 20,
+    lift: 28,
   });
-  spawnWave({ x, y, radius: 6, grow: 120, life: 0.22, width: 2 });
-  spawnArc({ radius: 48 + Math.random() * 40, life: 0.12, width: 1.8, jitter: 14, arcSpan: 0.45 });
+  spawnWave({ x, y, radius: 8, grow: 140, life: 0.24, width: 2.5 });
+  
+  // Electric Lightning Bolts (Bijli Effect on Tap)
+  const form = getForm();
+  spawnArc({ radius: 55 + Math.random() * 55, life: 0.18, width: 2.6, jitter: 18, arcSpan: 0.85, color: form.accentColor });
+  spawnArc({ radius: 38 + Math.random() * 40, life: 0.14, width: 2.0, jitter: 14, arcSpan: 0.65, color: "#ffffff" });
 }
 
 function spawnAuraEmbers() {
   const charging = isCharging();
-  const intensity = charging ? 5 : 2;
+  const form = getForm();
+  const intensity = charging ? 6 : 2;
+
   spawnParticles(intensity, {
-    speedMin: 6,
-    speedMax: 24,
-    sizeMin: 1.5,
-    sizeMax: 4.5,
+    speedMin: 8,
+    speedMax: 28,
+    sizeMin: 1.8,
+    sizeMax: 5.0,
     lifeMin: 0.5,
     lifeMax: 1.1,
     scatterX: 130,
     scatterY: 250,
     lift: 28,
   });
-  if (charging && Math.random() < 0.42) {
-    spawnArc({ radius: 88 + Math.random() * 78, life: 0.12 + Math.random() * 0.1, width: 1.2 + tapIntensity() * 2.2 });
-    if (Math.random() < 0.24) {
-      playLightningSound();
+
+  // Continuous Electric Lightning Arcs (Bijli Effect)
+  if (charging || form.level >= 2) {
+    const chance = charging ? 0.70 : 0.30;
+    if (Math.random() < chance) {
+      spawnArc({
+        radius: 75 + Math.random() * 90,
+        life: 0.14 + Math.random() * 0.12,
+        width: 1.8 + tapIntensity() * 2.8,
+        jitter: 18,
+        arcSpan: 0.85,
+        color: Math.random() > 0.35 ? form.accentColor : "#ffffff",
+      });
+      if (Math.random() < 0.2) {
+        playLightningSound();
+      }
     }
   }
 
@@ -1953,7 +1971,35 @@ function initVideo() {
   hiddenVideoContainer.appendChild(state.transitionVideo);
 }
 
+function preloadAllAssets() {
+  state.imageCache = {};
+  const urlsToPreload = [
+    "./public/assets/backgrounds/level-1.webp",
+    "./public/assets/backgrounds/level-2.webp",
+    "./public/assets/backgrounds/level-3.webp",
+    "./public/assets/backgrounds/level-1-crater.webp",
+    "./public/assets/backgrounds/level-2-crater.jpg",
+    "./public/assets/backgrounds/level-3-crater.jpg"
+  ];
+
+  GAME_DATA.forms.forEach((form) => {
+    if (form.stand) urlsToPreload.push(form.stand);
+    if (form.power) urlsToPreload.push(form.power);
+    if (form.aura) urlsToPreload.push(form.aura);
+  });
+
+  urlsToPreload.forEach((url) => {
+    const img = new Image();
+    img.src = url;
+    state.imageCache[url] = img;
+    if (img.decode) {
+      img.decode().catch(() => {});
+    }
+  });
+}
+
 function bootstrap() {
+  preloadAllAssets();
   resizeCanvas();
   renderFormStrip();
   updateTheme();
