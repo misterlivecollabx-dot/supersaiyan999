@@ -731,6 +731,9 @@ function spawnParticles(count, options = {}) {
 }
 
 function spawnWave(options = {}) {
+  if (state.waves.length > 12) {
+    state.waves.splice(0, state.waves.length - 8);
+  }
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
   const rawX = options.x ?? (rect.left + rect.width / 2);
@@ -748,6 +751,9 @@ function spawnWave(options = {}) {
 }
 
 function spawnArc(options = {}) {
+  if (state.arcs.length > 12) {
+    state.arcs.splice(0, state.arcs.length - 8);
+  }
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
   const centerX = (rect.left + rect.width / 2) - canvasRect.left;
