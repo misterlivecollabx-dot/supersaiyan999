@@ -1,0 +1,27 @@
+YOUTUBE PLAYABLES UPLOAD INSTRUCTIONS
+
+Follow these steps to submit this game build to YouTube Playables or other HTML5 playable gaming platforms:
+
+1. COMPRESSING THE CORRECT ZIP FILE FOR SUBMISSION:
+   YouTube Playables requires a flat ZIP format where 'index.html' is at the root.
+   Do NOT zip the outer folder. To create the correct zip:
+   - Open the "Game/" directory.
+   - Select all files and folders inside "Game/" (including index.html, game.js, styles.css, public/, and this instruction file).
+   - Right-click and choose "Compress" (on macOS) or "Send to -> Compressed (zipped) folder" (on Windows).
+   - Rename the generated ZIP file to something like "Super_Saiyan_999_Playable.zip". This is the file you will upload.
+
+2. SUBMISSION COMPLIANCE CHECKLIST (ALREADY MET):
+   - index.html at root: YES (Verified)
+   - Self-contained offline assets (all images/videos are local): YES (Verified)
+   - Under 50MB size limit: YES (Game ZIP is only ~7.8MB, optimal for fast mobile loading)
+   - Autoplay audio compliant: YES (Game requires screen click on the intro card to initiate audio)
+   - Fully responsive: YES (Game layout auto-scales to fit portrait/landscape screens)
+
+3. SUBMITTING TO YOUTUBE:
+   - Log into the Google Play Console / YouTube Partner Game Portal.
+   - Navigate to "Add New Game" / "Submissions".
+   - Upload the ZIP archive you created in Step 1.
+   - Input metadata (Title: Super Saiyan 999 V1, description, category, and preview icons).
+   - Submit for Google QA review.
+
+Created and prepared for delivery by: maanop

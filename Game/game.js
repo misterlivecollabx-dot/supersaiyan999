@@ -1,0 +1,2143 @@
+// SUPER SAIYAN 999 V1 - Developed by maanop
+const GAME_DATA = {
+  // ============================================================
+  //  BACKGROUND IMAGES — LEVEL 1 / 2 / 3
+  //  Yahan pe aap har level ka base background image change kar
+  //  sakte hain. File ko
+  //    Game/public/assets/backgrounds/
+  //  folder mein rakhein aur neeche path update karein.
+  //
+  //  Supported formats: .webp  .jpg  .png
+  //
+  //  LEVEL 1  →  key: 1  →  currently: level-1.webp
+  //  LEVEL 2  →  key: 2  →  currently: level-2.webp   (clean Namek — idle state)
+  //  LEVEL 3  →  key: 3  →  currently: level-3.webp
+  // ============================================================
+  backgrounds: {
+    1: "./public/assets/backgrounds/level-1.webp",   // ← LEVEL 1 background yahan badlein
+    2: "./public/assets/backgrounds/level-2.webp",   // ← LEVEL 2 idle background (tap karne pe neeche wala crater overlay aata hai)
+    3: "./public/assets/backgrounds/level-3.webp",   // ← LEVEL 3 background yahan badlein
+  },
+  audio: {
+    1: {
+      aura: "./public/assets/audio/level-1-aura.mp3",
+      charge: "./public/assets/audio/level-1-charge.mp3",
+      transform: "./public/assets/audio/level-1-transform.mp3",
+    },
+    2: {
+      aura: "./public/assets/audio/level-2-aura.mp3",
+      charge: "./public/assets/audio/level-2-charge.mp3",
+      transform: "./public/assets/audio/level-2-transform.mp3",
+    },
+    3: {
+      aura: "./public/assets/audio/level-3-aura.mp3",
+      charge: "./public/assets/audio/level-3-charge.mp3",
+      transform: "./public/assets/audio/level-3-transform.mp3",
+    },
+  },
+  forms: [
+    {
+      key: "base",
+      name: "Base",
+      level: 1,
+      threshold: 100,
+      auraColor: "#6ac9ff",
+      accentColor: "#8cf0ff",
+      thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
+      poseAdjust: {
+        stand: { x: 0.05, y: 3.3 },
+      },
+    },
+    { key: "kaioken", name: "Kaioken", level: 1, threshold: 200, auraColor: "#ff4f7b", accentColor: "#ff9459", thumbCrop: { x: 50, y: 5, scale: 2.08 } },
+    {
+      key: "false-ssj",
+      name: "False SSJ",
+      level: 1,
+      threshold: 300,
+      auraColor: "#ffd74e",
+      accentColor: "#ff8d2f",
+      thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
+      poseAdjust: {
+        power: { x: 0, y: 6.2 },
+      },
+    },
+    {
+      key: "ssj1",
+      name: "Super Saiyan 1",
+      level: 1,
+      threshold: 400,
+      auraColor: "#fff36c",
+      accentColor: "#ffbb42",
+      thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
+      poseAdjust: {
+        stand: { x: -0.35, y: 2.0 },
+        power: { x: -0.59, y: 1.6 },
+      },
+    },
+    { key: "ssj2", name: "Super Saiyan 2", level: 1, threshold: 500, auraColor: "#fff9a2", accentColor: "#e0b8ff", thumbCrop: { x: 50, y: 0.1, scale: 2.08 } },
+    { key: "ssj3", name: "Super Saiyan 3", level: 2, threshold: 600, auraColor: "#ffd36a", accentColor: "#ff6f3c", thumbCrop: { x: 50, y: 0.1, scale: 2.08 } },
+    { key: "ssj-god", name: "Super Saiyan God", level: 2, threshold: 650, auraColor: "#ff4d78", accentColor: "#ffb06a", thumbCrop: { x: 35, y: 5, scale: 2.6 } },
+    { key: "ssj-blue", name: "Super Saiyan Blue", level: 2, threshold: 700, auraColor: "#52bcff", accentColor: "#a4f7ff", thumbCrop: { x: 50, y: 5, scale: 2.08 } },
+    { key: "ssj-blue-kaioken", name: "SSJ Blue Kaioken", level: 2, threshold: 750, auraColor: "#8ee6ff", accentColor: "#ff5782", thumbCrop: { x: 50, y: 5, scale: 2.08 } },
+    {
+      key: "ssj4",
+      name: "Super Saiyan 4",
+      level: 2,
+      threshold: 800,
+      auraColor: "#ff3e5b",
+      accentColor: "#ffdc72",
+      thumbCrop: { x: 30, y: 0.2, scale: 2.08 },
+      poseAdjust: {
+        power: { x: -0.59, y: 1.6 },
+      },
+    },
+    {
+      key: "ultra-instinct",
+      name: "Ultra Instinct",
+      level: 3,
+      threshold: 850,
+      auraColor: "#eaf7ff",
+      accentColor: "#7fd1ff",
+      thumbCrop: { x: 50, y: 6, scale: 2.08 },
+      poseAdjust: {
+        power: { x: -0.08, y: 0.6 },
+      },
+    },
+    { key: "super-ultra-instinct", name: "Super Ultra Instinct", level: 3, threshold: 900, auraColor: "#c4ebff", accentColor: "#ffffff", thumbCrop: { x: 50, y: 6, scale: 2.08 } },
+    {
+      key: "ssj5",
+      name: "Super Saiyan 5",
+      level: 3,
+      threshold: 950,
+      auraColor: "#f8f2ff",
+      accentColor: "#ff7de9",
+      thumbCrop: { x: 30, y: 5, scale: 2.08 },
+      poseAdjust: {
+        power: { x: -2.4, y: 4.1 },
+      },
+    },
+    { key: "beast", name: "Super Saiyan Beast", level: 3, threshold: 1000, auraColor: "#ff6ecf", accentColor: "#7ec8ff", thumbCrop: { x: 35, y: 6, scale: 2.8 } },
+    {
+      key: "elite",
+      name: "Super Saiyan Elite",
+      level: 3,
+      threshold: 0,
+      auraColor: "#ffe27d",
+      accentColor: "#ffffff",
+      thumbCrop: { x: 30, y: 6, scale: 2.8 },
+      poseAdjust: {
+        stand: { x: 2.6, y: 0.9 },
+        power: { x: 2.4, y: 4.1 },
+      },
+    },
+  ],
+};
+
+const DEBUG_MODE = new URLSearchParams(window.location.search).has("debug");
+
+for (const form of GAME_DATA.forms) {
+  form.stand = `./public/assets/forms/${form.key}-stand.webp`;
+  form.power = `./public/assets/forms/${form.key}-power.webp`;
+  form.aura = `./public/assets/forms/${form.key}-aura.webp`;
+}
+
+const elements = {
+  shell: document.getElementById("gameShell"),
+  arena: document.getElementById("arena"),
+  topHud: document.querySelector(".top-hud"),
+  bottomHud: document.querySelector(".bottom-hud"),
+  background: document.getElementById("backgroundLayer"),
+  formStrip: document.getElementById("formStrip"),
+  levelPill: document.getElementById("levelPill"),
+  formName: document.getElementById("formName"),
+  statusLine: document.getElementById("statusLine"),
+  auraLayer: document.getElementById("auraLayer"),
+  spriteLayer: document.getElementById("spriteLayer"),
+  characterStack: document.getElementById("characterStack"),
+  energyFill: document.getElementById("energyFill"),
+  energyGlow: document.getElementById("energyGlow"),
+  energyState: document.getElementById("energyState"),
+  tapCallout: document.getElementById("tapCallout"),
+  introOverlay: document.getElementById("introOverlay"),
+  unlockToast: document.getElementById("unlockToast"),
+  flash: document.getElementById("screenFlash"),
+  impactRing: document.getElementById("impactRing"),
+  tapBloom: document.getElementById("tapBloom"),
+  canvas: document.getElementById("fxCanvas"),
+  rockField: document.getElementById("rockField"),
+  backgroundCrater: document.getElementById("backgroundCraterLayer"),
+};
+
+const ctx = elements.canvas.getContext("2d");
+const state = {
+  currentIndex: 0,
+  highestUnlocked: 0,
+  visibleLevel: 1,
+  chargeAmount: 0,
+  displayedRatio: 0,
+  lastTapAt: 0,
+  introDismissed: false,
+  transforming: false,
+  transformUntil: 0,
+  toastTimeout: null,
+  particles: [],
+  arcs: [],
+  waves: [],
+  recentTaps: [],
+  flashStrength: 0,
+  shake: 0,
+  bloomStrength: 0,
+  lastFrame: performance.now(),
+  audioReady: false,
+  audioContext: null,
+  audioCache: new Map(),
+  currentAuraLevel: null,
+  currentChargeLevel: null,
+  wasCharging: false,
+  transformTimerIds: [],
+  bgmStarted: false,
+  bgmInterval: null,
+  finalLoopTarget: 0,
+  rocks: [],
+  spriteFloat: 0,
+  spriteLift: 0,
+  spriteShakeX: 0,
+  spriteShakeY: 0,
+  craterActive: false,
+  craterTimer: 0,
+  landingTime: 0,
+  jumpTimer: 0,
+  jumpElapsed: 0,
+  impactVideo: null,
+  videoActive: false,
+  offscreenCanvas: null,
+  offscreenCtx: null,
+  lightningVideo1: null,
+  lightningVideo2: null,
+  baseLightningVideo: null,
+  beastLightningVideo: null,
+  ssj123LightningVideo: null,
+  superUltraVideo: null,
+  falseSsjVideo: null,
+  kaiokenVideo: null,
+  transitionVideo: null,
+  activeLightningVideo: null,
+  lightningActive: false,
+  lightningTimer: 0,
+  offscreenLightningCanvas: null,
+  offscreenLightningCtx: null,
+  chargeStartTime: 0,
+  currentBgSrc: null,
+};
+
+function getForm(index = state.currentIndex) {
+  return GAME_DATA.forms[index];
+}
+
+function getLevelRange(level = state.visibleLevel) {
+  const start = (level - 1) * 5;
+  return { start, end: start + 4 };
+}
+
+function isLevelComplete(level) {
+  return state.highestUnlocked >= getLevelRange(level).end;
+}
+
+function highestSwipeableLevel() {
+  if (isLevelComplete(2)) {
+    return 3;
+  }
+  if (isLevelComplete(1)) {
+    return 2;
+  }
+  return 1;
+}
+
+function maxUnlockedLevel() {
+  return getForm(state.highestUnlocked).level;
+}
+
+function currentTarget() {
+  const form = getForm();
+  return form.threshold || 1000;
+}
+
+function isFinalForm() {
+  return state.currentIndex >= GAME_DATA.forms.length - 1;
+}
+
+function isCharging(now = performance.now()) {
+  return state.transforming || now - state.lastTapAt <= 2000;
+}
+
+function chargeRatio() {
+  return Math.max(0, Math.min(1, state.chargeAmount / currentTarget()));
+}
+
+function updateTheme() {
+  const form = getForm();
+  const charging = isCharging();
+  const poseKey = charging ? "power" : "stand";
+  const poseAdjust = form.poseAdjust?.[poseKey] ?? { x: 0, y: 0 };
+  document.documentElement.style.setProperty("--aura-color", form.auraColor);
+  document.documentElement.style.setProperty("--accent-color", form.accentColor);
+  document.documentElement.style.setProperty("--sprite-offset-x", `${poseAdjust.x ?? 0}%`);
+  document.documentElement.style.setProperty("--sprite-offset-y", `${poseAdjust.y ?? 0}%`);
+  const bgSrc = GAME_DATA.backgrounds[form.level];
+  state.currentBgSrc = bgSrc;
+  elements.background.src = bgSrc;
+  // Reset crater overlay when switching forms
+  elements.backgroundCrater.style.backgroundImage = "";
+  elements.backgroundCrater.style.opacity = "0";
+  elements.levelPill.textContent = `LEVEL ${state.visibleLevel}`;
+  elements.auraLayer.src = form.aura;
+  elements.spriteLayer.src = charging ? form.power : form.stand;
+  syncAudio(true);
+}
+
+function visualAuraCharge(now = performance.now()) {
+  if (state.transforming || isCharging(now)) {
+    return Math.max(0, Math.min(1, state.displayedRatio));
+  }
+  return 0;
+}
+
+function createDebugPanel() {
+  const panel = document.createElement("div");
+  panel.className = "debug-panel";
+  panel.innerHTML = `
+    <button id="debug-force-next" type="button">Next Form</button>
+    <button id="debug-charge-mid" type="button">Charge 40%</button>
+    <button id="debug-age-tap" type="button">Age Tap</button>
+    <button id="debug-base" type="button">Select Base</button>
+  `;
+
+  panel.querySelector("#debug-force-next").addEventListener("click", () => {
+    state.chargeAmount = currentTarget();
+    tryTransform();
+  });
+  panel.querySelector("#debug-charge-mid").addEventListener("click", () => {
+    state.chargeAmount = currentTarget() * 0.4;
+    state.lastTapAt = performance.now();
+    updateStatus();
+  });
+  panel.querySelector("#debug-age-tap").addEventListener("click", () => {
+    state.lastTapAt = performance.now() - 2500;
+  });
+  panel.querySelector("#debug-base").addEventListener("click", () => {
+    handleManualSwitch(0);
+  });
+
+  elements.shell.append(panel);
+}
+
+function snapshotState() {
+  return {
+    currentIndex: state.currentIndex,
+    highestUnlocked: state.highestUnlocked,
+    formName: getForm().name,
+    unlockedCount: state.highestUnlocked + 1,
+    chargeAmount: state.chargeAmount,
+    chargeRatio: chargeRatio(),
+    isCharging: isCharging(),
+  };
+}
+
+function getVisibleFormIndices() {
+  const { start } = getLevelRange(state.visibleLevel);
+  return GAME_DATA.forms.slice(start, start + 5).map((_, offset) => start + offset);
+}
+
+function renderFormStrip() {
+  const visibleIndices = getVisibleFormIndices();
+  const markup = visibleIndices
+    .map((form) => {
+      const realIndex = form;
+      const formData = GAME_DATA.forms[realIndex];
+      const unlocked = realIndex <= state.highestUnlocked;
+      const active = realIndex === state.currentIndex;
+      const slotNumber = (realIndex % 5) + 1;
+      const thumbCrop = formData.thumbCrop ?? { x: 50, y: 20, scale: 2.56 };
+
+      return `
+        <button class="form-chip ${unlocked ? "" : "is-locked"} ${active ? "is-active" : ""}" data-form-index="${realIndex}" aria-label="${formData.name}">
+          <div class="chip-thumb">
+            <img src="${formData.stand}" alt="" style="--thumb-x:${thumbCrop.x}%; --thumb-y:${thumbCrop.y}%; --thumb-scale:${thumbCrop.scale};" />
+            ${unlocked ? "" : '<div class="chip-lock" aria-hidden="true">🔒</div>'}
+          </div>
+          <div class="chip-number">${slotNumber}</div>
+          <div class="chip-label">${formData.name}</div>
+        </button>
+      `;
+    })
+    .join("");
+
+  elements.formStrip.innerHTML = markup;
+
+  const leftArrow = document.getElementById("levelLeftArrow");
+  if (leftArrow) {
+    const showLeftArrow =
+      (state.currentIndex === 5 && state.visibleLevel === 2) ||
+      (state.currentIndex === 10 && state.visibleLevel === 3);
+    leftArrow.classList.toggle("is-visible", showLeftArrow);
+    elements.formStrip.classList.toggle("has-left-arrow", showLeftArrow);
+  }
+
+  const rightArrow = document.getElementById("levelRightArrow");
+  if (rightArrow) {
+    const showRightArrow =
+      (state.currentIndex === 4 && state.visibleLevel === 1) ||
+      (state.currentIndex === 9 && state.visibleLevel === 2);
+    rightArrow.classList.toggle("is-visible", showRightArrow);
+    elements.formStrip.classList.toggle("has-right-arrow", showRightArrow);
+  }
+}
+
+function setCurrentForm(index, { resetCharge = true } = {}) {
+  state.currentIndex = Math.max(0, Math.min(index, state.highestUnlocked));
+  state.visibleLevel = getForm().level;
+  if (resetCharge) {
+    state.chargeAmount = 0;
+  }
+  updateTheme();
+  renderFormStrip();
+}
+
+function setVisibleLevel(level) {
+  const safeLevel = Math.max(1, Math.min(highestSwipeableLevel(), level));
+  if (safeLevel === state.visibleLevel) {
+    return;
+  }
+  state.visibleLevel = safeLevel;
+  renderFormStrip();
+  updateTheme();
+  updateStatus();
+}
+
+function updateStatus(now = performance.now()) {
+  const form = getForm();
+  const charging = isCharging(now);
+
+  elements.formName.textContent = charging ? form.name : "TAP! TAP! TAP!";
+
+  if (state.transforming) {
+    elements.statusLine.textContent = `TRANSFORMATION SURGE`;
+    elements.energyState.textContent = `BREAKING LIMIT`;
+    elements.tapCallout.textContent = `${GAME_DATA.forms[Math.min(state.currentIndex + 1, GAME_DATA.forms.length - 1)].name}`;
+    return;
+  }
+
+  if (isFinalForm()) {
+    elements.statusLine.textContent = `FINAL ASCENSION`;
+    elements.energyState.textContent = charging ? `MAX AURA` : `FINAL FORM`;
+    elements.tapCallout.textContent = charging ? form.name : `Ultimate Form Ready`;
+    return;
+  }
+
+  if (charging) {
+    elements.statusLine.textContent = `POWERING ${form.name.toUpperCase()}`;
+    elements.energyState.textContent = `SURGING`;
+    elements.tapCallout.textContent = form.name.toUpperCase();
+    return;
+  }
+
+  if (state.chargeAmount > 0) {
+    elements.statusLine.textContent = `AURA COOLING`;
+    elements.energyState.textContent = `DRAINING`;
+    elements.tapCallout.textContent = `Tap To Continue`;
+    return;
+  }
+
+  elements.statusLine.textContent = `FORM READY`;
+  elements.energyState.textContent = `READY`;
+  elements.tapCallout.textContent = `Tap Anywhere To Power Up`;
+}
+
+function ensureAudioContext() {
+  if (!state.audioContext) {
+    state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (state.audioContext.state === "suspended") {
+    state.audioContext.resume().catch(() => { });
+  }
+}
+
+function getLevelAudio(level) {
+  if (!state.audioCache.has(level)) {
+    const channels = GAME_DATA.audio[level];
+    state.audioCache.set(level, {
+      aura: Object.assign(new Audio(channels.aura), { loop: true, preload: "auto", volume: 0.12 }),
+      charge: Object.assign(new Audio(channels.charge), { loop: true, preload: "auto", volume: 0 }),
+      transform: Object.assign(new Audio(channels.transform), { preload: "auto", volume: 0.75 }),
+    });
+  }
+  return state.audioCache.get(level);
+}
+
+function startLoop(audio, volume) {
+  audio.volume = volume;
+  const playPromise = audio.play();
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch(() => { });
+  }
+}
+
+function stopLoop(audio) {
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+function syncAudio(force = false) {
+  if (!state.audioReady) {
+    return;
+  }
+
+  const level = getForm().level;
+  const charging = isCharging();
+  const intensity = tapIntensity();
+
+  for (const [cachedLevel, channels] of state.audioCache.entries()) {
+    if (cachedLevel !== level || force || !charging) {
+      channels.aura.pause();
+      channels.charge.pause();
+    }
+  }
+
+  const channels = getLevelAudio(level);
+  if (charging) {
+    if (state.currentAuraLevel !== level || force || channels.aura.paused) {
+      startLoop(channels.aura, 0.2);
+      state.currentAuraLevel = level;
+    } else {
+      channels.aura.volume = 0.2;
+    }
+  } else {
+    channels.aura.pause();
+    state.currentAuraLevel = null;
+  }
+
+  if (charging && !state.transforming) {
+    startLoop(channels.charge, 0.12 + intensity * 0.22);
+    state.currentChargeLevel = level;
+  } else if (state.currentChargeLevel !== null) {
+    const existing = getLevelAudio(state.currentChargeLevel);
+    existing.charge.pause();
+    existing.charge.currentTime = 0;
+    state.currentChargeLevel = null;
+  }
+}
+
+function playTransformSound() {
+  if (!state.audioReady) {
+    return;
+  }
+  const channels = getLevelAudio(getForm().level);
+  channels.transform.currentTime = 0;
+  channels.transform.play().catch(() => { });
+}
+
+function pulseTone({ frequency, duration, gain, type = "triangle", glideTo }) {
+  if (!state.audioReady || !state.audioContext) {
+    return;
+  }
+
+  const now = state.audioContext.currentTime;
+  const oscillator = state.audioContext.createOscillator();
+  const volume = state.audioContext.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+  if (glideTo) {
+    oscillator.frequency.exponentialRampToValueAtTime(glideTo, now + duration);
+  }
+
+  volume.gain.setValueAtTime(0.0001, now);
+  volume.gain.exponentialRampToValueAtTime(gain, now + 0.02);
+  volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  oscillator.connect(volume).connect(state.audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.02);
+}
+
+function noiseBurst({ duration = 0.18, gain = 0.03, filterType = "bandpass", frequency = 1200, q = 1.5, fadeOut = 1.8 } = {}) {
+  if (!state.audioReady || !state.audioContext) {
+    return;
+  }
+
+  const sampleRate = state.audioContext.sampleRate;
+  const frameCount = Math.max(1, Math.floor(sampleRate * duration));
+  const buffer = state.audioContext.createBuffer(1, frameCount, sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < frameCount; i += 1) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / frameCount);
+  }
+
+  const source = state.audioContext.createBufferSource();
+  const filter = state.audioContext.createBiquadFilter();
+  const volume = state.audioContext.createGain();
+  const now = state.audioContext.currentTime;
+
+  source.buffer = buffer;
+  filter.type = filterType;
+  filter.frequency.setValueAtTime(frequency, now);
+  filter.Q.value = q;
+  volume.gain.setValueAtTime(gain, now);
+  volume.gain.exponentialRampToValueAtTime(0.0001, now + duration * fadeOut);
+
+  source.connect(filter).connect(volume).connect(state.audioContext.destination);
+  source.start(now);
+  source.stop(now + duration + 0.05);
+}
+
+function playTapTone() {
+  pulseTone({ frequency: 230, glideTo: 390, duration: 0.08, gain: 0.035, type: "square" });
+  noiseBurst({ duration: 0.04, gain: 0.01, frequency: 1800, q: 2.6 });
+}
+
+function playUnlockTone() {
+  pulseTone({ frequency: 520, glideTo: 920, duration: 0.18, gain: 0.06, type: "sawtooth" });
+  setTimeout(() => pulseTone({ frequency: 760, glideTo: 1120, duration: 0.14, gain: 0.045, type: "triangle" }), 90);
+}
+
+function playLightningSound() {
+  pulseTone({ frequency: 1180, glideTo: 280, duration: 0.16, gain: 0.022, type: "sawtooth" });
+  noiseBurst({ duration: 0.12, gain: 0.022, frequency: 2200, q: 0.8 });
+}
+
+function playRockLiftSound() {
+  pulseTone({ frequency: 96, glideTo: 132, duration: 0.28, gain: 0.028, type: "triangle" });
+  noiseBurst({ duration: 0.18, gain: 0.02, frequency: 340, q: 0.7, fadeOut: 1.2 });
+}
+
+function playRockFallSound() {
+  pulseTone({ frequency: 140, glideTo: 72, duration: 0.22, gain: 0.03, type: "triangle" });
+  noiseBurst({ duration: 0.22, gain: 0.028, frequency: 240, q: 0.6, fadeOut: 1.4 });
+}
+
+function playEnergyExplosionSound() {
+  pulseTone({ frequency: 118, glideTo: 40, duration: 0.55, gain: 0.08, type: "sawtooth" });
+  pulseTone({ frequency: 640, glideTo: 180, duration: 0.4, gain: 0.03, type: "triangle" });
+  noiseBurst({ duration: 0.42, gain: 0.055, frequency: 880, q: 0.9, fadeOut: 1.8 });
+}
+
+function playLevelCompleteSound() {
+  pulseTone({ frequency: 490, glideTo: 740, duration: 0.2, gain: 0.04, type: "triangle" });
+  setTimeout(() => pulseTone({ frequency: 660, glideTo: 990, duration: 0.22, gain: 0.05, type: "triangle" }), 120);
+  setTimeout(() => pulseTone({ frequency: 880, glideTo: 1320, duration: 0.26, gain: 0.055, type: "triangle" }), 240);
+}
+
+function startBackgroundMusic() {
+  if (!state.audioReady || state.bgmStarted) {
+    return;
+  }
+  state.bgmStarted = true;
+
+  const pattern = [110, 165, 147, 196, 165, 220, 196, 147];
+  let step = 0;
+  state.bgmInterval = window.setInterval(() => {
+    if (document.hidden) {
+      return;
+    }
+    const note = pattern[step % pattern.length];
+    pulseTone({ frequency: note, glideTo: note * 1.01, duration: 0.28, gain: 0.012, type: "triangle" });
+    pulseTone({ frequency: note * 2, glideTo: note * 2.02, duration: 0.12, gain: 0.005, type: "sine" });
+    step += 1;
+  }, 340);
+}
+
+function initializeAudio() {
+  if (state.audioReady) {
+    ensureAudioContext();
+    return;
+  }
+  ensureAudioContext();
+  state.audioReady = true;
+  syncAudio(true);
+  startBackgroundMusic();
+}
+
+function resizeCanvas() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const shellWidth = Math.min(vw, Math.max(280, Math.min(640, vh * 0.65)));
+  const hudScale = Math.max(0.55, Math.min(1.0, Math.min(shellWidth / 440, vh / 740)));
+
+  document.documentElement.style.setProperty("--shell-width", `${shellWidth}px`);
+  document.documentElement.style.setProperty("--hud-scale", `${hudScale.toFixed(3)}`);
+
+  // Dynamically measure rendered HUD bounds to calculate exact arena space
+  const topHudEl = elements.topHud || document.querySelector(".top-hud");
+  const bottomHudEl = elements.bottomHud || document.querySelector(".bottom-hud");
+
+  const topHudHeight = topHudEl ? topHudEl.getBoundingClientRect().height : 120;
+  const bottomHudHeight = bottomHudEl ? bottomHudEl.getBoundingClientRect().height : 100;
+
+  const arenaTop = Math.max(65, Math.min(180, Math.ceil(topHudHeight + 8)));
+  const arenaBottom = Math.max(80, Math.min(200, Math.ceil(bottomHudHeight + 28)));
+
+  const availableArenaHeight = Math.max(140, vh - arenaTop - arenaBottom);
+  const characterHeight = Math.max(130, Math.min(820, Math.floor(availableArenaHeight * 0.92)));
+  const characterWidth = Math.max(120, Math.min(480, Math.floor(Math.min(shellWidth * 0.84, characterHeight * 0.68))));
+
+  document.documentElement.style.setProperty("--arena-top", `${arenaTop}px`);
+  document.documentElement.style.setProperty("--arena-bottom", `${arenaBottom}px`);
+  document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
+  document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  elements.canvas.width = Math.floor(shellWidth * dpr);
+  elements.canvas.height = Math.floor(vh * dpr);
+  elements.canvas.style.width = `${shellWidth}px`;
+  elements.canvas.style.height = `${vh}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function tapIntensity() {
+  const now = performance.now();
+  state.recentTaps = state.recentTaps.filter((stamp) => now - stamp < 1000);
+  return Math.min(1, state.recentTaps.length / 11);
+}
+
+function spawnParticles(count, options = {}) {
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+  const rawX = options.x ?? (rect.left + rect.width / 2);
+  const rawY = options.y ?? (rect.top + rect.height * 0.46);
+  const baseX = rawX - canvasRect.left;
+  const baseY = rawY - canvasRect.top;
+  const palette = options.palette ?? [getForm().auraColor, getForm().accentColor, "#ffffff"];
+
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = options.speedMin + Math.random() * (options.speedMax - options.speedMin);
+    state.particles.push({
+      x: baseX + (Math.random() - 0.5) * (options.scatterX ?? 40),
+      y: baseY + (Math.random() - 0.5) * (options.scatterY ?? 120),
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - (options.lift ?? 0),
+      size: options.sizeMin + Math.random() * (options.sizeMax - options.sizeMin),
+      color: palette[Math.floor(Math.random() * palette.length)],
+      life: options.lifeMin + Math.random() * (options.lifeMax - options.lifeMin),
+      maxLife: 0,
+    });
+    state.particles[state.particles.length - 1].maxLife = state.particles[state.particles.length - 1].life;
+  }
+}
+
+function spawnWave(options = {}) {
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+  const rawX = options.x ?? (rect.left + rect.width / 2);
+  const rawY = options.y ?? (rect.top + rect.height * 0.72);
+  state.waves.push({
+    x: rawX - canvasRect.left,
+    y: rawY - canvasRect.top,
+    radius: options.radius ?? 24,
+    grow: options.grow ?? 340,
+    width: options.width ?? 3,
+    color: options.color ?? getForm().accentColor,
+    life: options.life ?? 0.55,
+    maxLife: options.life ?? 0.55,
+  });
+}
+
+function spawnArc(options = {}) {
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+  const centerX = (rect.left + rect.width / 2) - canvasRect.left;
+  const centerY = (rect.top + rect.height * 0.44) - canvasRect.top;
+  const radius = options.radius ?? (70 + Math.random() * 90);
+  const startAngle = options.startAngle ?? Math.random() * Math.PI * 2;
+  const points = [];
+  const segments = options.segments ?? 6;
+
+  for (let index = 0; index <= segments; index += 1) {
+    const progress = index / segments;
+    const angle = startAngle + progress * (options.arcSpan ?? (0.8 + Math.random() * 0.7));
+    const jitter = (Math.random() - 0.5) * (options.jitter ?? 22);
+    points.push({
+      x: centerX + Math.cos(angle) * (radius + jitter),
+      y: centerY + Math.sin(angle) * (radius * 0.92 + jitter),
+    });
+  }
+
+  state.arcs.push({
+    points,
+    color: options.color ?? (Math.random() > 0.5 ? getForm().accentColor : "#ffffff"),
+    width: options.width ?? (1.5 + Math.random() * 2.2),
+    life: options.life ?? 0.16,
+    maxLife: options.life ?? 0.16,
+  });
+}
+
+function spawnTapBurst(x, y) {
+  spawnParticles(12, {
+    x,
+    y,
+    speedMin: 16,
+    speedMax: 44,
+    sizeMin: 2,
+    sizeMax: 6,
+    lifeMin: 0.24,
+    lifeMax: 0.52,
+    scatterX: 18,
+    scatterY: 18,
+    lift: 26,
+  });
+  spawnWave({ x, y, radius: 6, grow: 120, life: 0.22, width: 2 });
+  spawnArc({ radius: 48 + Math.random() * 40, life: 0.12, width: 1.8, jitter: 14, arcSpan: 0.45 });
+}
+
+function spawnAuraEmbers() {
+  const charging = isCharging();
+  const intensity = charging ? 5 : 2;
+  spawnParticles(intensity, {
+    speedMin: 6,
+    speedMax: 24,
+    sizeMin: 1.5,
+    sizeMax: 4.5,
+    lifeMin: 0.5,
+    lifeMax: 1.1,
+    scatterX: 130,
+    scatterY: 250,
+    lift: 28,
+  });
+  if (charging && Math.random() < 0.42) {
+    spawnArc({ radius: 88 + Math.random() * 78, life: 0.12 + Math.random() * 0.1, width: 1.2 + tapIntensity() * 2.2 });
+    if (Math.random() < 0.24) {
+      playLightningSound();
+    }
+  }
+
+  // Spawns tight body-hugging sparks (animating body lines)
+  if (Math.random() < (charging ? 0.48 : 0.24)) {
+    let sparkColor;
+    const formKey = getForm().key;
+    if (formKey === "false-ssj") {
+      const colors = ["#ff3b30", "#8b0000", "#ff8d2f", "#222222"];
+      sparkColor = colors[Math.floor(Math.random() * colors.length)];
+    } else {
+      sparkColor = Math.random() > 0.4 ? getForm().accentColor : "#ffffff";
+    }
+
+    spawnArc({
+      radius: 35 + Math.random() * 55, // tight around Goku's torso and waist
+      life: 0.08 + Math.random() * 0.08, // fast flicker
+      width: 1.0 + Math.random() * 1.5,
+      jitter: 10 + Math.random() * 12,
+      arcSpan: 0.3 + Math.random() * 0.4,
+      color: sparkColor
+    });
+  }
+}
+
+function spawnTransformBurst() {
+  spawnParticles(80, {
+    speedMin: 45,
+    speedMax: 130,
+    sizeMin: 3,
+    sizeMax: 8,
+    lifeMin: 0.45,
+    lifeMax: 1.2,
+    scatterX: 60,
+    scatterY: 60,
+    lift: 46,
+  });
+  spawnWave({ radius: 30, grow: 760, life: 0.9, width: 5, color: "#ffffff" });
+  for (let i = 0; i < 10; i += 1) {
+    spawnArc({ radius: 62 + i * 10, life: 0.2 + Math.random() * 0.16, width: 2.4 + Math.random() * 2.2, jitter: 28, arcSpan: 1.1 + Math.random() * 0.7 });
+  }
+}
+
+function animateImpactRing() {
+  elements.impactRing.animate(
+    [
+      { opacity: 0.95, visibility: "visible", transform: "translate(-50%, 50%) scale(0.3)" },
+      { opacity: 0.45, visibility: "visible", transform: "translate(-50%, 50%) scale(1.1)" },
+      { opacity: 0, visibility: "hidden", transform: "translate(-50%, 50%) scale(1.55)" },
+    ],
+    { duration: 360, easing: "ease-out" },
+  );
+  state.bloomStrength = Math.min(1, state.bloomStrength + 0.8);
+}
+
+function flashScreen(strength = 1) {
+  state.flashStrength = Math.min(1.2, state.flashStrength + strength);
+}
+
+function shakeScreen(amount = 10) {
+  state.shake = Math.min(24, state.shake + amount);
+}
+
+function dismissIntro() {
+  if (state.introDismissed) {
+    return;
+  }
+  state.introDismissed = true;
+  elements.introOverlay.classList.add("is-hidden");
+}
+
+function showToast(message) {
+  elements.unlockToast.textContent = message;
+  elements.unlockToast.classList.remove("is-visible");
+  void elements.unlockToast.offsetWidth;
+  elements.unlockToast.classList.add("is-visible");
+
+  if (state.toastTimeout) {
+    clearTimeout(state.toastTimeout);
+  }
+  state.toastTimeout = setTimeout(() => {
+    elements.unlockToast.classList.remove("is-visible");
+  }, 1200);
+}
+
+function clearTransformTimers() {
+  state.transformTimerIds.forEach((timerId) => clearTimeout(timerId));
+  state.transformTimerIds = [];
+  if (state.transitionVideo && !state.transitionVideo.paused) {
+    state.transitionVideo.pause();
+  }
+}
+
+function queueTransformStep(callback, delay) {
+  const timerId = window.setTimeout(callback, delay);
+  state.transformTimerIds.push(timerId);
+}
+
+function tryTransform() {
+  if (state.transforming || isFinalForm()) {
+    return;
+  }
+  const nextIndex = state.currentIndex + 1;
+  if (state.chargeAmount < currentTarget() || nextIndex >= GAME_DATA.forms.length) {
+    return;
+  }
+
+  const unlocking = nextIndex > state.highestUnlocked;
+  const nextForm = GAME_DATA.forms[nextIndex];
+  const levelJump = nextForm.level > getForm().level;
+  state.transforming = true;
+  state.transformUntil = performance.now() + 1320;
+  state.chargeAmount = currentTarget();
+  elements.shell.classList.add("is-transforming");
+  elements.shell.classList.remove("is-vanishing", "is-reappearing");
+  clearTransformTimers();
+  if (state.transitionVideo) {
+    state.transitionVideo.currentTime = 0;
+    state.transitionVideo.play().catch(() => { });
+  }
+  flashScreen(1.1);
+  shakeScreen(20);
+  spawnTransformBurst();
+  spawnWave({ radius: 42, grow: 860, life: 1.05, width: 6, color: nextForm.accentColor });
+  state.bloomStrength = 1.4;
+  playTransformSound();
+  playEnergyExplosionSound();
+  pulseTone({ frequency: 170, glideTo: 900, duration: 0.45, gain: 0.09, type: "sawtooth" });
+  queueTransformStep(() => {
+    elements.shell.classList.add("is-vanishing");
+    flashScreen(0.7);
+    shakeScreen(16);
+  }, 120);
+  queueTransformStep(() => {
+    elements.shell.classList.remove("is-vanishing");
+    if (unlocking) {
+      state.highestUnlocked = nextIndex;
+    }
+    setCurrentForm(nextIndex);
+    elements.shell.classList.add("is-reappearing");
+    flashScreen(0.6);
+    shakeScreen(14);
+    spawnParticles(40, {
+      speedMin: 32,
+      speedMax: 110,
+      sizeMin: 2,
+      sizeMax: 7,
+      lifeMin: 0.32,
+      lifeMax: 0.95,
+      scatterX: 90,
+      scatterY: 90,
+      lift: 30,
+      palette: [nextForm.auraColor, nextForm.accentColor, "#ffffff"],
+    });
+  }, 420);
+  queueTransformStep(() => {
+    if (unlocking) {
+      state.visibleLevel = nextForm.level;
+      playUnlockTone();
+      showToast(`${nextForm.name} UNLOCKED`);
+    } else {
+      state.visibleLevel = nextForm.level;
+      showToast(`${nextForm.name}`);
+    }
+    renderFormStrip();
+    if (levelJump) {
+      playLevelCompleteSound();
+    }
+  }, 560);
+  queueTransformStep(() => {
+    elements.shell.classList.remove("is-reappearing");
+  }, 860);
+  queueTransformStep(() => {
+    state.transforming = false;
+    state.chargeAmount = 0;
+    state.lastTapAt = performance.now();
+    elements.shell.classList.remove("is-transforming", "is-vanishing", "is-reappearing");
+    updateTheme();
+    updateStatus();
+    clearTransformTimers();
+  }, 1320);
+}
+
+function handleTap(clientX, clientY) {
+  dismissIntro();
+  initializeAudio();
+
+  if (state.transforming) {
+    return;
+  }
+
+  const now = performance.now();
+  const wasIdle = (now - state.lastTapAt > 2000) && !state.transforming;
+
+  state.lastTapAt = now;
+  state.recentTaps.push(state.lastTapAt);
+  state.chargeAmount += 1;
+  if (isFinalForm()) {
+    state.chargeAmount = Math.min(currentTarget(), state.chargeAmount);
+  }
+
+  // Initiate jump-slam animation only when transitioning from idle/normal state
+  if (wasIdle) {
+    state.jumpTimer = 0.22;
+    state.jumpElapsed = 0;
+  }
+
+  elements.spriteLayer.src = getForm().power;
+  spawnTapBurst(clientX, clientY);
+  animateImpactRing();
+  flashScreen(0.16);
+  shakeScreen(3 + tapIntensity() * 5);
+  state.bloomStrength = Math.min(1, state.bloomStrength + 0.45);
+  playTapTone();
+  tryTransform();
+  updateStatus();
+  syncAudio();
+}
+
+function handleManualSwitch(index) {
+  if (index > state.highestUnlocked || state.transforming) {
+    shakeScreen(8);
+    flashScreen(0.08);
+    return;
+  }
+
+  state.chargeAmount = 0;
+  state.lastTapAt = 0;
+  setCurrentForm(index);
+  updateStatus();
+}
+
+function renderParticles(deltaSeconds) {
+  ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
+
+  // Draw and process reversed impact video frame if active (Level 1 only)
+  if (state.videoActive && state.visibleLevel === 1 && state.impactVideo && !state.impactVideo.paused && !state.impactVideo.ended) {
+    if (!state.offscreenCanvas) {
+      state.offscreenCanvas = document.createElement("canvas");
+      state.offscreenCtx = state.offscreenCanvas.getContext("2d");
+    }
+
+    const rawWidth = state.impactVideo.videoWidth;
+    const rawHeight = state.impactVideo.videoHeight;
+
+    if (rawWidth > 0 && rawHeight > 0) {
+      // Process at 0.5x scale for high performance (60 FPS)
+      const scaleFactor = 0.5;
+      const vWidth = Math.floor(rawWidth * scaleFactor);
+      const vHeight = Math.floor(rawHeight * scaleFactor);
+
+      state.offscreenCanvas.width = vWidth;
+      state.offscreenCanvas.height = vHeight;
+
+      // Draw current video frame scaled down
+      state.offscreenCtx.drawImage(state.impactVideo, 0, 0, vWidth, vHeight);
+
+      // Perform chroma-key (remove green screen background and dark borders)
+      const frame = state.offscreenCtx.getImageData(0, 0, vWidth, vHeight);
+      const data = frame.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        // Robust relative green keying condition
+        if (g > 90 && g > r * 1.09 && g > b * 1.09) {
+          data[i + 3] = 0;
+        } else if (r < 15 && g < 15 && b < 15) {
+          // Key out any black noise/borders
+          data[i + 3] = 0;
+        }
+      }
+
+      state.offscreenCtx.putImageData(frame, 0, 0);
+
+      // Draw the keyed frame onto the main canvas, placed at the bottom up to waist height
+      const mainW = elements.canvas.width;
+      const mainH = elements.canvas.height;
+      const destW = mainW;
+      const destH = mainH * 0.44; // Up to waist height
+      const destX = 0;
+      const destY = mainH - destH;
+
+      // Calculate crop to maintain aspect ratio (object-fit: cover)
+      const targetAspect = destW / destH;
+      const videoAspect = vWidth / vHeight;
+
+      let srcX = 0;
+      let srcY = 0;
+      let srcW = vWidth;
+      let srcH = vHeight;
+
+      if (videoAspect > targetAspect) {
+        srcW = vHeight * targetAspect;
+        srcX = (vWidth - srcW) / 2;
+      } else {
+        srcH = vWidth / targetAspect;
+        srcY = (vHeight - srcH) / 2;
+      }
+
+      ctx.drawImage(state.offscreenCanvas, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
+    }
+  }
+
+  // Draw and process lightning or transition video frame if active
+  let lv = state.activeLightningVideo;
+  let isActive = state.lightningActive;
+
+  if (state.transforming && state.transitionVideo && !state.transitionVideo.paused && !state.transitionVideo.ended) {
+    lv = state.transitionVideo;
+    isActive = true;
+  }
+
+  if (isActive && lv && !lv.paused && !lv.ended) {
+    if (!state.offscreenLightningCanvas) {
+      state.offscreenLightningCanvas = document.createElement("canvas");
+      state.offscreenLightningCtx = state.offscreenLightningCanvas.getContext("2d");
+    }
+
+    const rawWidth = lv.videoWidth;
+    const rawHeight = lv.videoHeight;
+
+    if (rawWidth > 0 && rawHeight > 0) {
+      // Process at 0.5x scale for high performance
+      const scaleFactor = 0.5;
+      const vWidth = Math.floor(rawWidth * scaleFactor);
+      const vHeight = Math.floor(rawHeight * scaleFactor);
+
+      state.offscreenLightningCanvas.width = vWidth;
+      state.offscreenLightningCanvas.height = vHeight;
+
+      // Draw current frame
+      state.offscreenLightningCtx.drawImage(lv, 0, 0, vWidth, vHeight);
+
+      // Perform chroma-key (remove green background and dark/black frames)
+      const frame = state.offscreenLightningCtx.getImageData(0, 0, vWidth, vHeight);
+      const data = frame.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        // Robust relative green keying condition for new lightning video
+        if (g > 90 && g > r * 1.09 && g > b * 1.09) {
+          data[i + 3] = 0;
+        } else if (r < 30 && g < 30 && b < 30) {
+          // Key out black/dark frames or pixels
+          data[i + 3] = 0;
+        }
+      }
+
+      state.offscreenLightningCtx.putImageData(frame, 0, 0);
+
+      // Draw the keyed frame onto the main canvas
+      const mainW = elements.canvas.width;
+      const mainH = elements.canvas.height;
+
+      let destX = 0;
+      let destY = 0;
+      let destW = mainW;
+      let destH = mainH;
+
+      let srcX = 0;
+      let srcY = 0;
+      let srcW = vWidth;
+      let srcH = vHeight;
+
+      if (lv === state.baseLightningVideo || lv === state.beastLightningVideo || lv === state.ssj123LightningVideo || lv === state.superUltraVideo || lv === state.falseSsjVideo || lv === state.kaiokenVideo || lv === state.transitionVideo) {
+        // ==============================================================
+        //  LEVEL 1 BASE CHARACTER LIGHTNING GREEN SCREEN SIZE & POSITION
+        //  This binds the lightning video EXACTLY to the character's sprite bounds
+        //  so it is perfectly centered, scaled, with no cuts or offsets.
+        // ==============================================================
+        const spriteRect = elements.spriteLayer.getBoundingClientRect();
+        const canvasRect = elements.canvas.getBoundingClientRect();
+
+        destW = spriteRect.width;
+        destH = spriteRect.height;
+        destX = spriteRect.left - canvasRect.left;
+        destY = spriteRect.top - canvasRect.top;
+
+        // No cropping/cutting: display the full video frame fitted to the sprite bounds
+        srcX = 0;
+        srcY = 0;
+        srcW = vWidth;
+        srcH = vHeight;
+      } else {
+        // Calculate crop to maintain cover aspect ratio for standard full screen lightning
+        const targetAspect = destW / destH;
+        const videoAspect = vWidth / vHeight;
+
+        if (videoAspect > targetAspect) {
+          srcW = vHeight * targetAspect;
+          srcX = (vWidth - srcW) / 2;
+        } else {
+          srcH = vWidth / targetAspect;
+          srcY = (vHeight - srcH) / 2;
+        }
+      }
+
+      // Draw lightning/transition with appropriate composite operation
+      ctx.save();
+      if (lv === state.transitionVideo) {
+        // Draw the transition video opaquely to hide the character swap
+        ctx.globalCompositeOperation = "source-over";
+      } else {
+        // Blend lightning/auras using screen mode
+        ctx.globalCompositeOperation = "screen";
+      }
+      ctx.drawImage(state.offscreenLightningCanvas, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
+      ctx.restore();
+    }
+  }
+
+  ctx.globalCompositeOperation = "screen";
+
+  for (let index = state.waves.length - 1; index >= 0; index -= 1) {
+    const wave = state.waves[index];
+    wave.life -= deltaSeconds;
+    if (wave.life <= 0) {
+      state.waves.splice(index, 1);
+      continue;
+    }
+    wave.radius += wave.grow * deltaSeconds;
+    const alpha = wave.life / wave.maxLife;
+    ctx.beginPath();
+    ctx.strokeStyle = `${wave.color}${Math.round(alpha * 180)
+      .toString(16)
+      .padStart(2, "0")}`;
+    ctx.lineWidth = wave.width * alpha;
+    ctx.ellipse(wave.x, wave.y, wave.radius, wave.radius * 0.24, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  for (let index = state.arcs.length - 1; index >= 0; index -= 1) {
+    const arc = state.arcs[index];
+    arc.life -= deltaSeconds;
+    if (arc.life <= 0) {
+      state.arcs.splice(index, 1);
+      continue;
+    }
+    const alpha = arc.life / arc.maxLife;
+    ctx.beginPath();
+    ctx.strokeStyle = `${arc.color}${Math.round(alpha * 255)
+      .toString(16)
+      .padStart(2, "0")}`;
+    ctx.lineWidth = arc.width * alpha;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    arc.points.forEach((point, pointIndex) => {
+      const driftX = (Math.random() - 0.5) * 10 * alpha;
+      const driftY = (Math.random() - 0.5) * 10 * alpha;
+      if (pointIndex === 0) {
+        ctx.moveTo(point.x + driftX, point.y + driftY);
+      } else {
+        ctx.lineTo(point.x + driftX, point.y + driftY);
+      }
+    });
+    ctx.stroke();
+  }
+
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+  const targetX = (rect.left + rect.width / 2) - canvasRect.left;
+  const targetY = (rect.top + rect.height * 0.46) - canvasRect.top;
+
+  for (let index = state.particles.length - 1; index >= 0; index -= 1) {
+    const particle = state.particles[index];
+    particle.life -= deltaSeconds;
+    if (particle.life <= 0) {
+      state.particles.splice(index, 1);
+      continue;
+    }
+
+    if (particle.type === "inflow") {
+      const dx = targetX - particle.x;
+      const dy = targetY - particle.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 15) {
+        state.particles.splice(index, 1);
+        continue;
+      }
+      const speed = (280 + Math.random() * 120) * deltaSeconds;
+      particle.x += (dx / dist) * speed;
+      particle.y += (dy / dist) * speed;
+    } else {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.vx *= 0.986;
+      particle.vy += 0.24;
+    }
+
+    const alpha = particle.life / particle.maxLife;
+    ctx.fillStyle = `${particle.color}${Math.round(alpha * 255)
+      .toString(16)
+      .padStart(2, "0")}`;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size * alpha, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function spawnInflowParticles(count) {
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+  const targetX = (rect.left + rect.width / 2) - canvasRect.left;
+  const targetY = (rect.top + rect.height * 0.46) - canvasRect.top;
+  const palette = [getForm().auraColor, getForm().accentColor, "#ffffff"];
+
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 240 + Math.random() * 140;
+    const x = targetX + Math.cos(angle) * dist;
+    const y = targetY + Math.sin(angle) * dist;
+
+    state.particles.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      size: 1.5 + Math.random() * 2.5,
+      color: palette[Math.floor(Math.random() * palette.length)],
+      life: 0.8 + Math.random() * 0.4,
+      maxLife: 1.2,
+      type: "inflow",
+    });
+  }
+}
+
+function updateVisualState(now) {
+  const charging = isCharging(now);
+  const form = getForm();
+  const auraCharge = visualAuraCharge(now);
+  elements.shell.classList.toggle("is-charging", charging);
+  elements.shell.classList.toggle("is-idle", !charging && !state.transforming);
+  elements.spriteLayer.src = charging ? form.power : form.stand;
+
+  if (elements.shell.classList.contains("is-vanishing")) {
+    elements.auraLayer.style.opacity = "0";
+    elements.auraLayer.style.visibility = "hidden";
+  } else {
+    elements.auraLayer.style.opacity = charging ? `${0.76 + tapIntensity() * 0.18}` : "0";
+    elements.auraLayer.style.visibility = charging ? "visible" : "hidden";
+  }
+
+  if (!charging && !state.transforming) {
+    elements.auraLayer.src = "";
+  } else if (elements.auraLayer.src !== form.aura) {
+    elements.auraLayer.src = form.aura;
+  }
+  document.documentElement.style.setProperty("--charge", `${auraCharge.toFixed(3)}`);
+  document.documentElement.style.setProperty("--intensity", `${tapIntensity().toFixed(3)}`);
+}
+
+function animate(now) {
+  const deltaSeconds = Math.min(0.04, (now - state.lastFrame) / 1000);
+  state.lastFrame = now;
+
+  if (!state.transforming && !isCharging(now) && state.chargeAmount > 0) {
+    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 0.34);
+  }
+
+  if (isFinalForm() && !isCharging(now)) {
+    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 0.3);
+  }
+
+  const charging = isCharging(now);
+  const ratio = chargeRatio();
+
+  // Handle jump slam animation
+  let jumpOffset = 0;
+  if (state.jumpTimer > 0) {
+    state.jumpElapsed += deltaSeconds;
+    if (state.jumpElapsed >= state.jumpTimer) {
+      // LANDED! Trigger landing slam effects
+      state.jumpTimer = 0;
+      state.craterActive = true;
+      state.craterTimer = 2.5;
+      state.landingTime = now;
+
+      // Screen flash and heavy shake
+      flashScreen(0.4);
+      shakeScreen(15);
+
+      // Low frequency sound burst for ground impact
+      noiseBurst({ duration: 0.28, gain: 0.05, frequency: 110, q: 1.4 });
+
+      // Ground shockwaves
+      spawnWave({ radius: 8, grow: 460, life: 0.45, width: 5 });
+      spawnWave({ radius: 24, grow: 320, life: 0.35, width: 3, color: "#ffffff" });
+
+      // Exploding ground particles (dirt, gravel, shards)
+      spawnParticles(35, {
+        speedMin: 22,
+        speedMax: 70,
+        sizeMin: 3.5,
+        sizeMax: 9,
+        lifeMin: 0.45,
+        lifeMax: 1.15,
+        scatterX: 110,
+        scatterY: 20,
+        lift: 38,
+        palette: ["#635144", "#4a3b30", "#8a7566", "#362a21"],
+      });
+
+      // Activate the rocks to shoot up!
+      if (state.rocks && state.rocks.length > 0) {
+        state.rocks.forEach((rock) => {
+          rock.active = true;
+          rock.opacity = 1.0;
+          rock.currentY = rock.baseY;
+          rock.currentRot = rock.baseRot;
+          rock.velocity = -280 - Math.random() * 220;
+          rock.targetRot = rock.baseRot + (Math.random() - 0.5) * 60;
+        });
+      }
+
+      // Play reversed rock video once
+      state.videoActive = true;
+      if (state.impactVideo) {
+        state.impactVideo.currentTime = 0;
+        state.impactVideo.play().catch(() => { });
+      }
+
+      // Play lightning video once (sequential sequence: video1 then video2)
+      state.lightningActive = true;
+      state.activeLightningVideo = state.lightningVideo1;
+      state.lightningTimer = 8.0; // total budget for both videos
+      if (state.lightningVideo1) {
+        state.lightningVideo1.currentTime = 0;
+        state.lightningVideo1.play().catch(() => { });
+      }
+      if (state.lightningVideo2) {
+        state.lightningVideo2.currentTime = 0;
+        state.lightningVideo2.pause();
+      }
+    } else {
+      const progress = state.jumpElapsed / state.jumpTimer;
+      jumpOffset = -95 * Math.sin(progress * Math.PI);
+    }
+  }
+
+  if (state.impactVideo) {
+    if (!charging) {
+      state.videoActive = false;
+      if (!state.impactVideo.paused) {
+        state.impactVideo.pause();
+      }
+    } else if (state.videoActive) {
+      if (state.impactVideo.paused) {
+        state.impactVideo.play().catch(() => { });
+      }
+      if (state.impactVideo.ended || state.impactVideo.currentTime >= 5.0) {
+        state.videoActive = false;
+        if (!state.impactVideo.paused) {
+          state.impactVideo.pause();
+        }
+      }
+    }
+  }
+
+  // Handle crater active state
+  state.craterActive = charging;
+
+  if (!charging) {
+    state.lightningActive = false;
+    state.lightningTimer = 0;
+    state.activeLightningVideo = null;
+    if (state.lightningVideo1 && !state.lightningVideo1.paused) state.lightningVideo1.pause();
+    if (state.lightningVideo2 && !state.lightningVideo2.paused) state.lightningVideo2.pause();
+    if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+    if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+    if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+    if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+    if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+    if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+  } else {
+    const currentKey = getForm().key;
+    if (currentKey === "base" || currentKey === "ssj-blue") {
+      // Stop other custom videos if active
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+      if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.baseLightningVideo;
+      if (state.baseLightningVideo && state.baseLightningVideo.paused) {
+        state.baseLightningVideo.currentTime = 0;
+        state.baseLightningVideo.play().catch(() => { });
+      }
+    } else if (currentKey === "beast") {
+      // Stop other custom videos if active
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+      if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.beastLightningVideo;
+      if (state.beastLightningVideo && state.beastLightningVideo.paused) {
+        state.beastLightningVideo.currentTime = 0;
+        state.beastLightningVideo.play().catch(() => { });
+      }
+    } else if (currentKey === "ssj1" || currentKey === "ssj2" || currentKey === "ssj3") {
+      // Stop other custom videos if active
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+      if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.ssj123LightningVideo;
+      if (state.ssj123LightningVideo && state.ssj123LightningVideo.paused) {
+        state.ssj123LightningVideo.currentTime = 0;
+        state.ssj123LightningVideo.play().catch(() => { });
+      }
+    } else if (currentKey === "ultra-instinct" || currentKey === "super-ultra-instinct" || currentKey === "ssj5") {
+      // Stop other custom videos if active
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.superUltraVideo;
+      if (state.superUltraVideo && state.superUltraVideo.paused) {
+        state.superUltraVideo.currentTime = 0;
+        state.superUltraVideo.play().catch(() => { });
+      }
+    } else if (currentKey === "false-ssj") {
+      // Stop other custom videos if active
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+      if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.falseSsjVideo;
+      if (state.falseSsjVideo && state.falseSsjVideo.paused) {
+        state.falseSsjVideo.currentTime = 0;
+        state.falseSsjVideo.play().catch(() => { });
+      }
+    } else if (currentKey === "kaioken" || currentKey === "ssj-blue-kaioken" || currentKey === "ssj-god" || currentKey === "elite" || currentKey === "ssj4") {
+      // Stop other custom videos if active
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
+      if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
+
+      state.lightningActive = true;
+      state.activeLightningVideo = state.kaiokenVideo;
+      if (state.kaiokenVideo && state.kaiokenVideo.paused) {
+        state.kaiokenVideo.currentTime = 0;
+        state.kaiokenVideo.play().catch(() => { });
+      }
+    } else {
+      if (state.baseLightningVideo && !state.baseLightningVideo.paused) {
+        state.baseLightningVideo.pause();
+        if (state.activeLightningVideo === state.baseLightningVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.beastLightningVideo && !state.beastLightningVideo.paused) {
+        state.beastLightningVideo.pause();
+        if (state.activeLightningVideo === state.beastLightningVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) {
+        state.ssj123LightningVideo.pause();
+        if (state.activeLightningVideo === state.ssj123LightningVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.superUltraVideo && !state.superUltraVideo.paused) {
+        state.superUltraVideo.pause();
+        if (state.activeLightningVideo === state.superUltraVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.falseSsjVideo && !state.falseSsjVideo.paused) {
+        state.falseSsjVideo.pause();
+        if (state.activeLightningVideo === state.falseSsjVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.kaiokenVideo && !state.kaiokenVideo.paused) {
+        state.kaiokenVideo.pause();
+        if (state.activeLightningVideo === state.kaiokenVideo) {
+          state.activeLightningVideo = null;
+          state.lightningActive = false;
+        }
+      }
+      if (state.lightningActive && state.lightningVideo1 && state.lightningVideo2) {
+        state.lightningTimer -= deltaSeconds;
+
+        if (state.activeLightningVideo === state.lightningVideo1) {
+          if (state.lightningVideo1.ended || state.lightningVideo1.currentTime >= state.lightningVideo1.duration - 0.1) {
+            state.activeLightningVideo = state.lightningVideo2;
+            state.lightningVideo2.currentTime = 0;
+            state.lightningVideo2.play().catch(() => { });
+          }
+        }
+
+        const currentEnded = state.activeLightningVideo ? state.activeLightningVideo.ended : true;
+        if (state.lightningTimer <= 0 || (state.activeLightningVideo === state.lightningVideo2 && currentEnded)) {
+          state.lightningActive = false;
+          state.activeLightningVideo = null;
+          if (!state.lightningVideo1.paused) state.lightningVideo1.pause();
+          if (!state.lightningVideo2.paused) state.lightningVideo2.pause();
+        }
+      }
+    }
+  }
+
+  // Track when charging started (for Level 2 progressive ground crack)
+  if (charging && !state.wasCharging) {
+    state.chargeStartTime = now;
+  } else if (!charging) {
+    state.chargeStartTime = 0;
+  }
+
+  // ==============================================================
+  //  CRATER / GROUND-CRACK OVERLAY — TAP pe background change
+  //
+  //  LEVEL 2:  click/tap karo → crater dikhta hai
+  //            chod do       → wapas clean Namek
+  //
+  //  ✏️  Background image badlni ho to:
+  //      Game/public/assets/backgrounds/  folder mein file daalo
+  //      aur neeche wala LEVEL_2_CRATER_IMAGE path update karo.
+  //
+  //  LEVEL 1:  jump-slam ke baad crater dikhta hai  (level-1-crater.webp)
+  //  LEVEL 3:  abhi koi crater overlay nahi hai.
+  // ==============================================================
+
+  // ← LEVEL 2: tap pe yahi image overlay hogi — path yahan badlein
+  const form = getForm();
+  const LEVEL_2_CRATER_IMAGE = "url('./public/assets/backgrounds/level-2-crater.jpg')";
+  const LEVEL_3_CRATER_IMAGE = "url('./public/assets/backgrounds/level-3-crater.jpg')";
+
+  if (form.level === 3) {
+    if (charging) {
+      if (elements.backgroundCrater.style.backgroundImage !== LEVEL_3_CRATER_IMAGE) {
+        elements.backgroundCrater.style.backgroundImage = LEVEL_3_CRATER_IMAGE;
+      }
+      elements.backgroundCrater.style.opacity = "1";
+    } else {
+      elements.backgroundCrater.style.opacity = "0";
+    }
+  } else if (form.level === 2) {
+    // Main background (level-2.webp) kabhi nahi badalta — sirf overlay on/off hoti hai
+    if (charging) {
+      if (elements.backgroundCrater.style.backgroundImage !== LEVEL_2_CRATER_IMAGE) {
+        elements.backgroundCrater.style.backgroundImage = LEVEL_2_CRATER_IMAGE;
+      }
+      elements.backgroundCrater.style.opacity = "1";
+    } else {
+      elements.backgroundCrater.style.opacity = "0";
+    }
+  } else if (form.level === 1 && state.craterActive) {
+    // Level 1 crater — jump-slam ke baad dikhta hai
+    const L1 = "url('./public/assets/backgrounds/level-1-crater.webp')"; // ← Level 1 crater yahan badlein
+    if (elements.backgroundCrater.style.backgroundImage !== L1) {
+      elements.backgroundCrater.style.backgroundImage = L1;
+    }
+    elements.backgroundCrater.style.opacity = "1";
+  } else {
+    elements.backgroundCrater.style.opacity = "0";
+  }
+
+  if (Math.random() < (charging ? 0.54 : 0.18)) {
+    spawnAuraEmbers();
+  }
+
+  if (charging && Math.random() < 0.45) {
+    spawnInflowParticles(2);
+  }
+
+  if (charging && !state.wasCharging) {
+    playRockLiftSound();
+    noiseBurst({ duration: 0.18, gain: 0.016, frequency: 520, q: 0.8 });
+  } else if (!charging && state.wasCharging && !state.transforming) {
+    playRockFallSound();
+    spawnParticles(24, {
+      speedMin: 12,
+      speedMax: 46,
+      sizeMin: 2,
+      sizeMax: 6,
+      lifeMin: 0.24,
+      lifeMax: 0.72,
+      scatterX: 180,
+      scatterY: 24,
+      lift: 10,
+      palette: ["#d8b98e", "#b18f66", "#ffffff"],
+    });
+  }
+  state.wasCharging = charging;
+
+  // Sprite Lift: smooth lerp to target
+  const targetLift = charging ? -22 * ratio : 0;
+  state.spriteLift += (targetLift - state.spriteLift) * Math.min(1, deltaSeconds * 8);
+  const totalSpriteLift = state.spriteLift + jumpOffset;
+
+  // Sprite Float: gentle hover
+  const floatSpeed = charging ? 150 : 320;
+  const floatAmplitude = charging ? 10 * (1 + ratio * 0.8) : 6;
+  state.spriteFloat = Math.sin(now / floatSpeed) * floatAmplitude;
+
+  // Sprite Shake
+  state.spriteShakeX = charging ? (Math.random() - 0.5) * 8 * ratio : 0;
+  state.spriteShakeY = charging ? (Math.random() - 0.5) * 5 * ratio : 0;
+
+  // Apply custom properties to spriteLayer
+  elements.spriteLayer.style.setProperty("--sprite-lift", `${totalSpriteLift}px`);
+  elements.spriteLayer.style.setProperty("--sprite-float", `${state.spriteFloat}px`);
+  elements.spriteLayer.style.setProperty("--sprite-shake-x", `${state.spriteShakeX}px`);
+  elements.spriteLayer.style.setProperty("--sprite-shake-y", `${state.spriteShakeY}px`);
+
+  // Aura pulse
+  const auraPulse = charging ? Math.sin(now / 80) * 0.04 * ratio : 0;
+  elements.auraLayer.style.setProperty("--aura-pulse", `${auraPulse}`);
+
+  // Animate rocks (physical launch on ground smash, then vanish)
+  if (state.rocks && state.rocks.length > 0) {
+    state.rocks.forEach((rock) => {
+      if (rock.active) {
+        // Move with velocity & gravity
+        rock.currentY += rock.velocity * deltaSeconds;
+        rock.velocity += 650 * deltaSeconds; // gravity pull
+        rock.currentRot += (rock.targetRot - rock.currentRot) * Math.min(1, deltaSeconds * 6);
+
+        // Fade out
+        rock.opacity = Math.max(0, rock.opacity - deltaSeconds * 1.6);
+        if (rock.opacity <= 0) {
+          rock.active = false;
+        }
+      } else {
+        rock.opacity = 0;
+      }
+
+      rock.element.style.setProperty("--rock-y", `${rock.currentY}px`);
+      rock.element.style.setProperty("--rock-r", `${rock.currentRot}deg`);
+      rock.element.style.opacity = `${rock.opacity}`;
+    });
+  }
+
+  const targetRatio = state.transforming ? 1 : ratio;
+  state.displayedRatio += (targetRatio - state.displayedRatio) * Math.min(1, deltaSeconds * 10);
+  const percent = `${(state.displayedRatio * 100).toFixed(2)}%`;
+  elements.energyFill.style.width = percent;
+  elements.energyGlow.style.width = percent;
+
+  state.flashStrength = Math.max(0, state.flashStrength - deltaSeconds * 1.8);
+  elements.flash.style.opacity = `${state.flashStrength}`;
+  state.bloomStrength = Math.max(0, state.bloomStrength - deltaSeconds * 2.4);
+  if (elements.tapBloom) {
+    elements.tapBloom.style.opacity = `${Math.min(0.9, state.bloomStrength * 0.9)}`;
+    elements.tapBloom.style.transform = `translateX(-50%) scale(${0.65 + state.bloomStrength * 0.85})`;
+  }
+
+  // Camera zoom / scale based on charge ratio
+  const shellScale = 1 + ratio * 0.015;
+
+  if (state.shake > 0.1) {
+    state.shake *= 0.88;
+    const offsetX = (Math.random() - 0.5) * state.shake;
+    const offsetY = (Math.random() - 0.5) * state.shake;
+    elements.shell.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${shellScale})`;
+  } else {
+    state.shake = 0;
+    elements.shell.style.transform = `translate(0, 0) scale(${shellScale})`;
+  }
+
+  updateVisualState(now);
+  updateStatus(now);
+  renderParticles(deltaSeconds);
+  syncAudio();
+  requestAnimationFrame(animate);
+}
+
+function bindEvents() {
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("orientationchange", () => setTimeout(resizeCanvas, 80));
+
+  // Prevent default browser image drag preview behavior globally
+  document.addEventListener("dragstart", (event) => {
+    if (event.target.tagName === "IMG") {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  let blockChipClick = false;
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+  let swipeLastX = 0;
+  let swipeTracking = false;
+  let swipeTriggered = false;
+
+  const beginStripSwipe = (clientX, clientY) => {
+    swipeStartX = clientX;
+    swipeStartY = clientY;
+    swipeLastX = clientX;
+    swipeTracking = true;
+    swipeTriggered = false;
+  };
+
+  const moveStripSwipe = (clientX, clientY) => {
+    if (!swipeTracking) {
+      return;
+    }
+    swipeLastX = clientX;
+    const deltaX = clientX - swipeStartX;
+    const deltaY = clientY - swipeStartY;
+    if (swipeTriggered || Math.abs(deltaX) < 24 || Math.abs(deltaX) < Math.abs(deltaY)) {
+      return;
+    }
+    swipeTriggered = true;
+    blockChipClick = true;
+    setVisibleLevel(deltaX < 0 ? state.visibleLevel + 1 : state.visibleLevel - 1);
+  };
+
+  const endStripSwipe = (clientX, clientY) => {
+    if (!swipeTracking) {
+      return;
+    }
+    const deltaX = (swipeTriggered ? swipeLastX : clientX) - swipeStartX;
+    const deltaY = clientY - swipeStartY;
+    if (!swipeTriggered && Math.abs(deltaX) >= 36 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      blockChipClick = true;
+      setVisibleLevel(deltaX < 0 ? state.visibleLevel + 1 : state.visibleLevel - 1);
+    }
+    swipeTracking = false;
+    swipeTriggered = false;
+  };
+
+  elements.formStrip.addEventListener("click", (event) => {
+    if (blockChipClick) {
+      blockChipClick = false;
+      return;
+    }
+
+    // Intercept clicks on the level transition arrow to switch level/character
+    if (event.target.closest("#levelRightArrow")) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (state.highestUnlocked >= 5) {
+        setCurrentForm(5);
+      } else {
+        setVisibleLevel(2);
+      }
+      return;
+    }
+
+    const chip = event.target.closest("[data-form-index]");
+    if (!chip) {
+      return;
+    }
+    handleManualSwitch(Number(chip.dataset.formIndex));
+  });
+
+  elements.formStrip.addEventListener("pointerdown", (event) => {
+    beginStripSwipe(event.clientX, event.clientY);
+  });
+
+  elements.formStrip.addEventListener("pointermove", (event) => {
+    moveStripSwipe(event.clientX, event.clientY);
+  });
+
+  elements.formStrip.addEventListener("pointerup", (event) => {
+    endStripSwipe(event.clientX, event.clientY);
+  });
+
+  elements.formStrip.addEventListener("pointercancel", () => {
+    swipeTracking = false;
+    swipeTriggered = false;
+  });
+
+  elements.formStrip.addEventListener("touchstart", (event) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+    beginStripSwipe(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  elements.formStrip.addEventListener("touchmove", (event) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+    moveStripSwipe(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  elements.formStrip.addEventListener("touchend", () => {
+    endStripSwipe(swipeLastX, swipeStartY);
+  });
+
+  const triggerTap = (event) => {
+    if (event.target.closest("[data-form-index]")) {
+      return;
+    }
+    const point = event.touches ? event.touches[0] : event;
+    handleTap(point.clientX, point.clientY);
+  };
+
+  elements.arena.addEventListener("pointerdown", triggerTap);
+  elements.tapCallout.addEventListener("pointerdown", triggerTap);
+  elements.introOverlay.addEventListener("pointerdown", triggerTap);
+
+  elements.arena.addEventListener("keydown", (event) => {
+    if (event.repeat) {
+      return;
+    }
+    if (event.code === "Space" || event.code === "Enter") {
+      event.preventDefault();
+      const rect = elements.arena.getBoundingClientRect();
+      handleTap(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      for (const channels of state.audioCache.values()) {
+        channels.aura.pause();
+        channels.charge.pause();
+      }
+    } else {
+      syncAudio(true);
+    }
+  });
+
+
+
+  const leftArrow = document.getElementById("levelLeftArrow");
+  if (leftArrow) {
+    leftArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (state.currentIndex === 5) {
+        setCurrentForm(4); // Switch back to SSJ2 (last character of Level 1)
+      } else if (state.currentIndex === 10) {
+        setCurrentForm(9); // Switch back to Super Saiyan Elite (last character of Level 2)
+      }
+    });
+  }
+
+  const rightArrow = document.getElementById("levelRightArrow");
+  if (rightArrow) {
+    rightArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (state.currentIndex === 4) {
+        if (state.highestUnlocked >= 5) {
+          setCurrentForm(5); // Switch to Level 2
+        } else {
+          setVisibleLevel(2);
+        }
+      } else if (state.currentIndex === 9) {
+        if (state.highestUnlocked >= 10) {
+          setCurrentForm(10); // Switch to Level 3
+        } else {
+          setVisibleLevel(3);
+        }
+      }
+    });
+  }
+}
+
+function initRocks() {
+  const rockElements = elements.rockField.children;
+  const baseLifts = [18, 28, 14, 32, 10, 28, 22];
+  const baseRots = [-10, 14, -16, 4, -8, 12, -14];
+
+  state.rocks = Array.from(rockElements).map((element, idx) => {
+    element.style.opacity = "0";
+    return {
+      element,
+      baseY: baseLifts[idx] ?? 18,
+      baseRot: baseRots[idx] ?? 0,
+      currentY: baseLifts[idx] ?? 18,
+      currentRot: baseRots[idx] ?? 0,
+      velocity: 0,
+      opacity: 0,
+      active: false,
+    };
+  });
+}
+
+function initVideo() {
+  // Preload Level 2 & 3 crater animation frames to cache them in browser memory
+  const crater1 = new Image();
+  crater1.src = "./public/assets/backgrounds/level-2-crater-light.webp";
+  const crater2 = new Image();
+  crater2.src = "./public/assets/backgrounds/level-2-crater-medium.webp";
+  const crater3 = new Image();
+  crater3.src = "./public/assets/backgrounds/level-2-crater-heavy.webp";
+  const craterL3 = new Image();
+  craterL3.src = "./public/assets/backgrounds/level-3-crater.jpg";
+
+  state.impactVideo = document.createElement("video");
+  state.impactVideo.src = "./public/assets/istockphoto-1144855437-640_adpp_is.mp4";
+  state.impactVideo.muted = true;
+  state.impactVideo.playsInline = true;
+  state.impactVideo.autoplay = false;
+  state.impactVideo.loop = false;
+  state.impactVideo.load();
+
+  state.lightningVideo1 = document.createElement("video");
+  state.lightningVideo1.src = "./public/assets/istockphoto-1610125395-640_adpp_is.mp4";
+  state.lightningVideo1.muted = true;
+  state.lightningVideo1.playsInline = true;
+  state.lightningVideo1.autoplay = false;
+  state.lightningVideo1.loop = false;
+  state.lightningVideo1.load();
+
+  state.lightningVideo2 = document.createElement("video");
+  state.lightningVideo2.src = "./public/assets/km_20260716_1440p_60f_20260716_135312.mp4";
+  state.lightningVideo2.muted = true;
+  state.lightningVideo2.playsInline = true;
+  state.lightningVideo2.autoplay = false;
+  state.lightningVideo2.loop = false;
+  state.lightningVideo2.load();
+
+  state.baseLightningVideo = document.createElement("video");
+  state.baseLightningVideo.src = "./public/assets/level_1_1.mp4";
+  state.baseLightningVideo.muted = true;
+  state.baseLightningVideo.playsInline = true;
+  state.baseLightningVideo.autoplay = false;
+  state.baseLightningVideo.loop = true;
+  state.baseLightningVideo.load();
+
+  state.beastLightningVideo = document.createElement("video");
+  state.beastLightningVideo.src = "./public/assets/super_saiyan_beast.mp4";
+  state.beastLightningVideo.muted = true;
+  state.beastLightningVideo.playsInline = true;
+  state.beastLightningVideo.autoplay = false;
+  state.beastLightningVideo.loop = true;
+  state.beastLightningVideo.load();
+
+  state.ssj123LightningVideo = document.createElement("video");
+  state.ssj123LightningVideo.src = "./public/assets/ssj123_lightning.mp4";
+  state.ssj123LightningVideo.muted = true;
+  state.ssj123LightningVideo.playsInline = true;
+  state.ssj123LightningVideo.autoplay = false;
+  state.ssj123LightningVideo.loop = true;
+  state.ssj123LightningVideo.load();
+
+  state.superUltraVideo = document.createElement("video");
+  state.superUltraVideo.src = "./public/assets/super_ultra.mp4";
+  state.superUltraVideo.muted = true;
+  state.superUltraVideo.playsInline = true;
+  state.superUltraVideo.autoplay = false;
+  state.superUltraVideo.loop = true;
+  state.superUltraVideo.load();
+
+  state.falseSsjVideo = document.createElement("video");
+  state.falseSsjVideo.src = "./public/assets/false_ssj.mp4";
+  state.falseSsjVideo.muted = true;
+  state.falseSsjVideo.playsInline = true;
+  state.falseSsjVideo.autoplay = false;
+  state.falseSsjVideo.loop = true;
+  state.falseSsjVideo.load();
+
+  state.kaiokenVideo = document.createElement("video");
+  state.kaiokenVideo.src = "./public/assets/kaioken.mp4";
+  state.kaiokenVideo.muted = true;
+  state.kaiokenVideo.playsInline = true;
+  state.kaiokenVideo.autoplay = false;
+  state.kaiokenVideo.loop = true;
+  state.kaiokenVideo.load();
+
+  state.transitionVideo = document.createElement("video");
+  state.transitionVideo.src = "./public/assets/transformation_transition.mp4";
+  state.transitionVideo.muted = true;
+  state.transitionVideo.playsInline = true;
+  state.transitionVideo.autoplay = false;
+  state.transitionVideo.loop = false; // Transition only plays once per transformation
+  state.transitionVideo.load();
+
+  // Create a hidden video container in the DOM to keep all video elements active
+  const hiddenVideoContainer = document.createElement("div");
+  hiddenVideoContainer.style.position = "absolute";
+  hiddenVideoContainer.style.width = "0";
+  hiddenVideoContainer.style.height = "0";
+  hiddenVideoContainer.style.opacity = "0";
+  hiddenVideoContainer.style.pointerEvents = "none";
+  hiddenVideoContainer.style.overflow = "hidden";
+  elements.shell.appendChild(hiddenVideoContainer);
+
+  hiddenVideoContainer.appendChild(state.impactVideo);
+  hiddenVideoContainer.appendChild(state.lightningVideo1);
+  hiddenVideoContainer.appendChild(state.lightningVideo2);
+  hiddenVideoContainer.appendChild(state.baseLightningVideo);
+  hiddenVideoContainer.appendChild(state.beastLightningVideo);
+  hiddenVideoContainer.appendChild(state.ssj123LightningVideo);
+  hiddenVideoContainer.appendChild(state.superUltraVideo);
+  hiddenVideoContainer.appendChild(state.falseSsjVideo);
+  hiddenVideoContainer.appendChild(state.kaiokenVideo);
+  hiddenVideoContainer.appendChild(state.transitionVideo);
+}
+
+function bootstrap() {
+  resizeCanvas();
+  renderFormStrip();
+  updateTheme();
+  updateStatus();
+  bindEvents();
+  initRocks();
+  initVideo();
+
+  if (DEBUG_MODE) {
+    createDebugPanel();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+bootstrap();

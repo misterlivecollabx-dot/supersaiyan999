@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Super Saiyan 999 V1</title>
+    <link rel="stylesheet" href="./styles.css?v=20260715-2236" />
+  </head>
+  <body>
+    <div class="game-shell" id="gameShell">
+      <div class="mobile-bezel"></div>
+      <div class="screen-frame"></div>
+      <div class="bg-stack">
+        <img class="bg-image" id="backgroundLayer" alt="" />
+        <div id="backgroundCraterLayer" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 250ms ease;"></div>
+        <div class="bg-drift"></div>
+        <div class="bg-vignette"></div>
+        <div class="bg-radial"></div>
+        <div class="speed-lines"></div>
+        <div class="energy-distortion"></div>
+      </div>
+
+      <canvas id="fxCanvas" aria-hidden="true"></canvas>
+      <div class="screen-flash" id="screenFlash"></div>
+      <div class="transform-blast" id="transformBlast"></div>
+      <div class="unlock-toast" id="unlockToast"></div>
+
+
+
+      <header class="top-hud">
+        <div class="top-panel">
+          <div class="top-panel-corners"></div>
+          <div class="level-center" id="levelPill">LEVEL 1</div>
+          <div class="title-sub ui-hidden" id="statusLine">Tap to start charging</div>
+          <span class="level-left-arrow" id="levelLeftArrow" role="button" aria-label="Previous Level">◀</span>
+          <section class="form-strip" id="formStrip" aria-label="Transformations"></section>
+          <span class="level-right-arrow" id="levelRightArrow" role="button" aria-label="Next Level">▶</span>
+        </div>
+      </header>
+
+      <main class="arena" id="arena" role="button" tabindex="0" aria-label="Tap to power up">
+        <div class="charge-lens"></div>
+        <div class="energy-column"></div>
+        <div class="heat-haze"></div>
+        <div class="ground-dust"></div>
+        <div class="character-stack" id="characterStack">
+          <div class="charge-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="impact-ring" id="impactRing"></div>
+          <div class="tap-bloom" id="tapBloom"></div>
+          <img class="aura-layer" id="auraLayer" alt="" />
+          <img class="sprite-layer" id="spriteLayer" alt="" />
+        </div>
+
+        <div class="rock-field" id="rockField">
+          <div class="rock rock-1"></div>
+          <div class="rock rock-2"></div>
+          <div class="rock rock-3"></div>
+          <div class="rock rock-4"></div>
+          <div class="rock rock-5"></div>
+          <div class="rock rock-6"></div>
+          <div class="rock rock-7"></div>
+        </div>
+
+        <div class="ground-crack"></div>
+        <div class="ground-shadow" id="groundShadow"></div>
+        <div class="impact-floor"></div>
+      </main>
+
+      <footer class="bottom-hud">
+        <div class="energy-panel">
+          <div class="energy-head">
+            <span>ENERGY</span>
+            <span id="energyState">READY</span>
+          </div>
+          <div class="energy-bar">
+            <div class="energy-fill" id="energyFill"></div>
+            <div class="energy-glow" id="energyGlow"></div>
+          </div>
+        </div>
+        <div class="form-banner">
+          <div class="form-banner-name" id="formName">Base</div>
+          <div class="tap-callout" id="tapCallout">Tap anywhere to power up and transform</div>
+        </div>
+      </footer>
+
+      <div class="intro-overlay" id="introOverlay">
+        <div class="intro-card">
+          <div class="intro-tag">YOUTUBE PLAYABLE STYLE BUILD</div>
+          <h1>Super Saiyan 999</h1>
+          <p>Tap to charge. Stop for 2 seconds and the energy drains, but your unlocked form stays.</p>
+          <p>Unlocked forms can be switched from the top strip anytime.</p>
+          <div class="intro-cta">Tap Anywhere</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./game.js?v=20260715-2236"></script>
+  </body>
+</html>

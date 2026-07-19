@@ -1,0 +1,191 @@
+{
+  "forms": [
+    {
+      "key": "base",
+      "name": "Base",
+      "level": 1,
+      "threshold": 100,
+      "auraColor": "#6ac9ff",
+      "accentColor": "#8cf0ff",
+      "stand": "assets/forms/base-stand.webp",
+      "power": "assets/forms/base-power.webp",
+      "aura": "assets/forms/base-aura.webp"
+    },
+    {
+      "key": "kaioken",
+      "name": "Kaioken",
+      "level": 1,
+      "threshold": 200,
+      "auraColor": "#ff4f7b",
+      "accentColor": "#ff9459",
+      "stand": "assets/forms/kaioken-stand.webp",
+      "power": "assets/forms/kaioken-power.webp",
+      "aura": "assets/forms/kaioken-aura.webp"
+    },
+    {
+      "key": "false-ssj",
+      "name": "False SSJ",
+      "level": 1,
+      "threshold": 300,
+      "auraColor": "#ffd74e",
+      "accentColor": "#ff8d2f",
+      "stand": "assets/forms/false-ssj-stand.webp",
+      "power": "assets/forms/false-ssj-power.webp",
+      "aura": "assets/forms/false-ssj-aura.webp"
+    },
+    {
+      "key": "ssj1",
+      "name": "Super Saiyan 1",
+      "level": 1,
+      "threshold": 400,
+      "auraColor": "#fff36c",
+      "accentColor": "#ffbb42",
+      "stand": "assets/forms/ssj1-stand.webp",
+      "power": "assets/forms/ssj1-power.webp",
+      "aura": "assets/forms/ssj1-aura.webp"
+    },
+    {
+      "key": "ssj2",
+      "name": "Super Saiyan 2",
+      "level": 1,
+      "threshold": 500,
+      "auraColor": "#fff9a2",
+      "accentColor": "#e0b8ff",
+      "stand": "assets/forms/ssj2-stand.webp",
+      "power": "assets/forms/ssj2-power.webp",
+      "aura": "assets/forms/ssj2-aura.webp"
+    },
+    {
+      "key": "ssj3",
+      "name": "Super Saiyan 3",
+      "level": 2,
+      "threshold": 600,
+      "auraColor": "#ffd36a",
+      "accentColor": "#ff6f3c",
+      "stand": "assets/forms/ssj3-stand.webp",
+      "power": "assets/forms/ssj3-power.webp",
+      "aura": "assets/forms/ssj3-aura.webp"
+    },
+    {
+      "key": "ssj-god",
+      "name": "Super Saiyan God",
+      "level": 2,
+      "threshold": 650,
+      "auraColor": "#ff4d78",
+      "accentColor": "#ffb06a",
+      "stand": "assets/forms/ssj-god-stand.webp",
+      "power": "assets/forms/ssj-god-power.webp",
+      "aura": "assets/forms/ssj-god-aura.webp"
+    },
+    {
+      "key": "ssj-blue",
+      "name": "Super Saiyan Blue",
+      "level": 2,
+      "threshold": 700,
+      "auraColor": "#52bcff",
+      "accentColor": "#a4f7ff",
+      "stand": "assets/forms/ssj-blue-stand.webp",
+      "power": "assets/forms/ssj-blue-power.webp",
+      "aura": "assets/forms/ssj-blue-aura.webp"
+    },
+    {
+      "key": "ssj-blue-kaioken",
+      "name": "SSJ Blue Kaioken",
+      "level": 2,
+      "threshold": 750,
+      "auraColor": "#8ee6ff",
+      "accentColor": "#ff5782",
+      "stand": "assets/forms/ssj-blue-kaioken-stand.webp",
+      "power": "assets/forms/ssj-blue-kaioken-power.webp",
+      "aura": "assets/forms/ssj-blue-kaioken-aura.webp"
+    },
+    {
+      "key": "ssj4",
+      "name": "Super Saiyan 4",
+      "level": 2,
+      "threshold": 800,
+      "auraColor": "#ff3e5b",
+      "accentColor": "#ffdc72",
+      "stand": "assets/forms/ssj4-stand.webp",
+      "power": "assets/forms/ssj4-power.webp",
+      "aura": "assets/forms/ssj4-aura.webp"
+    },
+    {
+      "key": "ultra-instinct",
+      "name": "Ultra Instinct",
+      "level": 3,
+      "threshold": 850,
+      "auraColor": "#eaf7ff",
+      "accentColor": "#7fd1ff",
+      "stand": "assets/forms/ultra-instinct-stand.webp",
+      "power": "assets/forms/ultra-instinct-power.webp",
+      "aura": "assets/forms/ultra-instinct-aura.webp"
+    },
+    {
+      "key": "super-ultra-instinct",
+      "name": "Super Ultra Instinct",
+      "level": 3,
+      "threshold": 900,
+      "auraColor": "#c4ebff",
+      "accentColor": "#ffffff",
+      "stand": "assets/forms/super-ultra-instinct-stand.webp",
+      "power": "assets/forms/super-ultra-instinct-power.webp",
+      "aura": "assets/forms/super-ultra-instinct-aura.webp"
+    },
+    {
+      "key": "ssj5",
+      "name": "Super Saiyan 5",
+      "level": 3,
+      "threshold": 950,
+      "auraColor": "#f8f2ff",
+      "accentColor": "#ff7de9",
+      "stand": "assets/forms/ssj5-stand.webp",
+      "power": "assets/forms/ssj5-power.webp",
+      "aura": "assets/forms/ssj5-aura.webp"
+    },
+    {
+      "key": "beast",
+      "name": "Super Saiyan Beast",
+      "level": 3,
+      "threshold": 1000,
+      "auraColor": "#ff6ecf",
+      "accentColor": "#7ec8ff",
+      "stand": "assets/forms/beast-stand.webp",
+      "power": "assets/forms/beast-power.webp",
+      "aura": "assets/forms/beast-aura.webp"
+    },
+    {
+      "key": "elite",
+      "name": "Super Saiyan Elite",
+      "level": 3,
+      "threshold": 0,
+      "auraColor": "#ffe27d",
+      "accentColor": "#ffffff",
+      "stand": "assets/forms/elite-stand.webp",
+      "power": "assets/forms/elite-power.webp",
+      "aura": "assets/forms/elite-aura.webp"
+    }
+  ],
+  "backgrounds": {
+    "1": "assets/backgrounds/level-1.webp",
+    "2": "assets/backgrounds/level-2.webp",
+    "3": "assets/backgrounds/level-3.webp"
+  },
+  "audio": {
+    "1": {
+      "aura": "assets/audio/level-1-aura.mp3",
+      "charge": "assets/audio/level-1-charge.mp3",
+      "transform": "assets/audio/level-1-transform.mp3"
+    },
+    "2": {
+      "aura": "assets/audio/level-2-aura.mp3",
+      "charge": "assets/audio/level-2-charge.mp3",
+      "transform": "assets/audio/level-2-transform.mp3"
+    },
+    "3": {
+      "aura": "assets/audio/level-3-aura.mp3",
+      "charge": "assets/audio/level-3-charge.mp3",
+      "transform": "assets/audio/level-3-transform.mp3"
+    }
+  }
+}
