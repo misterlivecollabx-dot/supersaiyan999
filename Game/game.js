@@ -958,8 +958,7 @@ function tryTransform() {
   elements.shell.classList.remove("is-vanishing", "is-reappearing");
   clearTransformTimers();
   if (state.transitionVideo) {
-    state.transitionVideo.currentTime = 0;
-    state.transitionVideo.play().catch(() => { });
+    playLazyVideo(state.transitionVideo);
   }
   flashScreen(1.1);
   shakeScreen(20);
@@ -1436,13 +1435,13 @@ function animate(now) {
       if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.baseLightningVideo;
-      if (state.baseLightningVideo && state.baseLightningVideo.paused) {
-        state.baseLightningVideo.currentTime = 0;
-        state.baseLightningVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.baseLightningVideo) {
+        state.activeLightningVideo = state.baseLightningVideo;
+        playLazyVideo(state.baseLightningVideo);
+      } else if (state.baseLightningVideo && state.baseLightningVideo.paused) {
+        playLazyVideo(state.baseLightningVideo);
       }
     } else if (currentKey === "beast") {
-      // Stop other custom videos if active
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
       if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
       if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
@@ -1450,13 +1449,13 @@ function animate(now) {
       if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.beastLightningVideo;
-      if (state.beastLightningVideo && state.beastLightningVideo.paused) {
-        state.beastLightningVideo.currentTime = 0;
-        state.beastLightningVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.beastLightningVideo) {
+        state.activeLightningVideo = state.beastLightningVideo;
+        playLazyVideo(state.beastLightningVideo);
+      } else if (state.beastLightningVideo && state.beastLightningVideo.paused) {
+        playLazyVideo(state.beastLightningVideo);
       }
     } else if (currentKey === "ssj1" || currentKey === "ssj2" || currentKey === "ssj3") {
-      // Stop other custom videos if active
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
       if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
       if (state.superUltraVideo && !state.superUltraVideo.paused) state.superUltraVideo.pause();
@@ -1464,13 +1463,13 @@ function animate(now) {
       if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.ssj123LightningVideo;
-      if (state.ssj123LightningVideo && state.ssj123LightningVideo.paused) {
-        state.ssj123LightningVideo.currentTime = 0;
-        state.ssj123LightningVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.ssj123LightningVideo) {
+        state.activeLightningVideo = state.ssj123LightningVideo;
+        playLazyVideo(state.ssj123LightningVideo);
+      } else if (state.ssj123LightningVideo && state.ssj123LightningVideo.paused) {
+        playLazyVideo(state.ssj123LightningVideo);
       }
     } else if (currentKey === "ultra-instinct" || currentKey === "super-ultra-instinct" || currentKey === "ssj5") {
-      // Stop other custom videos if active
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
       if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
       if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
@@ -1478,13 +1477,13 @@ function animate(now) {
       if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.superUltraVideo;
-      if (state.superUltraVideo && state.superUltraVideo.paused) {
-        state.superUltraVideo.currentTime = 0;
-        state.superUltraVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.superUltraVideo) {
+        state.activeLightningVideo = state.superUltraVideo;
+        playLazyVideo(state.superUltraVideo);
+      } else if (state.superUltraVideo && state.superUltraVideo.paused) {
+        playLazyVideo(state.superUltraVideo);
       }
     } else if (currentKey === "false-ssj") {
-      // Stop other custom videos if active
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
       if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
       if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
@@ -1492,13 +1491,13 @@ function animate(now) {
       if (state.kaiokenVideo && !state.kaiokenVideo.paused) state.kaiokenVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.falseSsjVideo;
-      if (state.falseSsjVideo && state.falseSsjVideo.paused) {
-        state.falseSsjVideo.currentTime = 0;
-        state.falseSsjVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.falseSsjVideo) {
+        state.activeLightningVideo = state.falseSsjVideo;
+        playLazyVideo(state.falseSsjVideo);
+      } else if (state.falseSsjVideo && state.falseSsjVideo.paused) {
+        playLazyVideo(state.falseSsjVideo);
       }
     } else if (currentKey === "kaioken" || currentKey === "ssj-blue-kaioken" || currentKey === "ssj-god" || currentKey === "elite" || currentKey === "ssj4") {
-      // Stop other custom videos if active
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) state.baseLightningVideo.pause();
       if (state.beastLightningVideo && !state.beastLightningVideo.paused) state.beastLightningVideo.pause();
       if (state.ssj123LightningVideo && !state.ssj123LightningVideo.paused) state.ssj123LightningVideo.pause();
@@ -1506,10 +1505,11 @@ function animate(now) {
       if (state.falseSsjVideo && !state.falseSsjVideo.paused) state.falseSsjVideo.pause();
 
       state.lightningActive = true;
-      state.activeLightningVideo = state.kaiokenVideo;
-      if (state.kaiokenVideo && state.kaiokenVideo.paused) {
-        state.kaiokenVideo.currentTime = 0;
-        state.kaiokenVideo.play().catch(() => { });
+      if (state.activeLightningVideo !== state.kaiokenVideo) {
+        state.activeLightningVideo = state.kaiokenVideo;
+        playLazyVideo(state.kaiokenVideo);
+      } else if (state.kaiokenVideo && state.kaiokenVideo.paused) {
+        playLazyVideo(state.kaiokenVideo);
       }
     } else {
       if (state.baseLightningVideo && !state.baseLightningVideo.paused) {
@@ -1948,6 +1948,16 @@ function initRocks() {
   });
 }
 
+function playLazyVideo(video) {
+  if (!video) return;
+  if (video.preload === "none") {
+    video.preload = "auto";
+    video.load();
+  }
+  video.currentTime = 0;
+  video.play().catch(() => {});
+}
+
 function initVideo() {
   const createVideo = (src, loop = true) => {
     const v = document.createElement("video");
@@ -1959,8 +1969,7 @@ function initVideo() {
     v.setAttribute("webkit-playsinline", "");
     v.autoplay = false;
     v.loop = loop;
-    v.preload = "auto";
-    v.load();
+    v.preload = "none";
     return v;
   };
 
