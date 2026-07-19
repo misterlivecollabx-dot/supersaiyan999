@@ -1068,8 +1068,87 @@ function handleManualSwitch(index) {
   updateStatus();
 }
 
+function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
+  if (!video || video.paused || video.ended || (video.readyState ?? 0) < 2) {
+    return;
+  }
+
+  const vWidth = video.videoWidth || 640;
+  const vHeight = video.videoHeight || 360;
+  if (vWidth <= 0 || vHeight <= 0) return;
+
+  const procW = 320;
+  const procH = 180;
+
+  if (!state.procCanvas) {
+    state.procCanvas = document.createElement("canvas");
+    state.procCanvas.width = procW;
+    state.procCanvas.height = procH;
+    state.procCtx = state.procCanvas.getContext("2d", { willReadFrequently: true });
+  }
+
+  state.procCtx.drawImage(video, 0, 0, procW, procH);
+
+  try {
+    const imgData = state.procCtx.getImageData(0, 0, procW, procH);
+    const data = imgData.data;
+    const len = data.length;
+
+    for (let i = 0; i < len; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      // Robust green screen removal (#00FF00) and black noise keying
+      if (g > 50 && g > r * 1.04 && g > b * 1.04) {
+        data[i + 3] = 0;
+      } else if (r < 20 && g < 20 && b < 20) {
+        data[i + 3] = 0;
+      }
+    }
+
+    state.procCtx.putImageData(imgData, 0, 0);
+
+    ctx.save();
+    ctx.globalCompositeOperation = compositeMode;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "medium";
+    ctx.drawImage(state.procCanvas, 0, 0, procW, procH, destRect.x, destRect.y, destRect.w, destRect.h);
+    ctx.restore();
+  } catch (e) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.drawImage(video, 0, 0, vWidth, vHeight, destRect.x, destRect.y, destRect.w, destRect.h);
+    ctx.restore();
+  }
+}
+
 function renderParticles(deltaSeconds) {
   ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
+
+  // Render video frame if active (lightning or transformation transition)
+  let lv = state.activeLightningVideo;
+  let isActive = state.lightningActive;
+
+  if (state.transforming && state.transitionVideo && !state.transitionVideo.paused && !state.transitionVideo.ended) {
+    lv = state.transitionVideo;
+    isActive = true;
+  }
+
+  if (isActive && lv && elements.spriteLayer) {
+    const spriteRect = elements.spriteLayer.getBoundingClientRect();
+    const canvasRect = elements.canvas.getBoundingClientRect();
+
+    const destRect = {
+      x: spriteRect.left - canvasRect.left,
+      y: spriteRect.top - canvasRect.top,
+      w: spriteRect.width,
+      h: spriteRect.height
+    };
+
+    const compMode = (lv === state.transitionVideo) ? "source-over" : "screen";
+    drawKeyedVideoFrame(lv, destRect, compMode);
+  }
 
   ctx.globalCompositeOperation = "screen";
 
@@ -1859,105 +1938,45 @@ function initRocks() {
 }
 
 function initVideo() {
-  // Preload Level 2 & 3 crater animation frames to cache them in browser memory
-  const crater1 = new Image();
-  crater1.src = "./public/assets/backgrounds/level-2-crater-light.webp";
-  const crater2 = new Image();
-  crater2.src = "./public/assets/backgrounds/level-2-crater-medium.webp";
-  const crater3 = new Image();
-  crater3.src = "./public/assets/backgrounds/level-2-crater-heavy.webp";
-  const craterL3 = new Image();
-  craterL3.src = "./public/assets/backgrounds/level-3-crater.jpg";
+  const createVideo = (src, loop = true) => {
+    const v = document.createElement("video");
+    v.crossOrigin = "anonymous";
+    v.src = src;
+    v.muted = true;
+    v.playsInline = true;
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
+    v.autoplay = false;
+    v.loop = loop;
+    v.preload = "auto";
+    v.load();
+    return v;
+  };
 
-  state.impactVideo = document.createElement("video");
-  state.impactVideo.src = "./public/assets/istockphoto-1144855437-640_adpp_is.mp4";
-  state.impactVideo.muted = true;
-  state.impactVideo.playsInline = true;
-  state.impactVideo.autoplay = false;
-  state.impactVideo.loop = false;
-  state.impactVideo.load();
+  state.impactVideo = createVideo("./public/assets/istockphoto-1144855437-640_adpp_is.mp4", false);
+  state.lightningVideo1 = createVideo("./public/assets/istockphoto-1610125395-640_adpp_is.mp4", false);
+  state.lightningVideo2 = createVideo("./public/assets/km_20260716_1440p_60f_20260716_135312.mp4", false);
+  state.baseLightningVideo = createVideo("./public/assets/level_1_1.mp4", true);
+  state.beastLightningVideo = createVideo("./public/assets/super_saiyan_beast.mp4", true);
+  state.ssj123LightningVideo = createVideo("./public/assets/ssj123_lightning.mp4", true);
+  state.superUltraVideo = createVideo("./public/assets/super_ultra.mp4", true);
+  state.falseSsjVideo = createVideo("./public/assets/false_ssj.mp4", true);
+  state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
+  state.transitionVideo = createVideo("./public/assets/transformation_transition.mp4", false);
 
-  state.lightningVideo1 = document.createElement("video");
-  state.lightningVideo1.src = "./public/assets/istockphoto-1610125395-640_adpp_is.mp4";
-  state.lightningVideo1.muted = true;
-  state.lightningVideo1.playsInline = true;
-  state.lightningVideo1.autoplay = false;
-  state.lightningVideo1.loop = false;
-  state.lightningVideo1.load();
-
-  state.lightningVideo2 = document.createElement("video");
-  state.lightningVideo2.src = "./public/assets/km_20260716_1440p_60f_20260716_135312.mp4";
-  state.lightningVideo2.muted = true;
-  state.lightningVideo2.playsInline = true;
-  state.lightningVideo2.autoplay = false;
-  state.lightningVideo2.loop = false;
-  state.lightningVideo2.load();
-
-  state.baseLightningVideo = document.createElement("video");
-  state.baseLightningVideo.src = "./public/assets/level_1_1.mp4";
-  state.baseLightningVideo.muted = true;
-  state.baseLightningVideo.playsInline = true;
-  state.baseLightningVideo.autoplay = false;
-  state.baseLightningVideo.loop = true;
-  state.baseLightningVideo.load();
-
-  state.beastLightningVideo = document.createElement("video");
-  state.beastLightningVideo.src = "./public/assets/super_saiyan_beast.mp4";
-  state.beastLightningVideo.muted = true;
-  state.beastLightningVideo.playsInline = true;
-  state.beastLightningVideo.autoplay = false;
-  state.beastLightningVideo.loop = true;
-  state.beastLightningVideo.load();
-
-  state.ssj123LightningVideo = document.createElement("video");
-  state.ssj123LightningVideo.src = "./public/assets/ssj123_lightning.mp4";
-  state.ssj123LightningVideo.muted = true;
-  state.ssj123LightningVideo.playsInline = true;
-  state.ssj123LightningVideo.autoplay = false;
-  state.ssj123LightningVideo.loop = true;
-  state.ssj123LightningVideo.load();
-
-  state.superUltraVideo = document.createElement("video");
-  state.superUltraVideo.src = "./public/assets/super_ultra.mp4";
-  state.superUltraVideo.muted = true;
-  state.superUltraVideo.playsInline = true;
-  state.superUltraVideo.autoplay = false;
-  state.superUltraVideo.loop = true;
-  state.superUltraVideo.load();
-
-  state.falseSsjVideo = document.createElement("video");
-  state.falseSsjVideo.src = "./public/assets/false_ssj.mp4";
-  state.falseSsjVideo.muted = true;
-  state.falseSsjVideo.playsInline = true;
-  state.falseSsjVideo.autoplay = false;
-  state.falseSsjVideo.loop = true;
-  state.falseSsjVideo.load();
-
-  state.kaiokenVideo = document.createElement("video");
-  state.kaiokenVideo.src = "./public/assets/kaioken.mp4";
-  state.kaiokenVideo.muted = true;
-  state.kaiokenVideo.playsInline = true;
-  state.kaiokenVideo.autoplay = false;
-  state.kaiokenVideo.loop = true;
-  state.kaiokenVideo.load();
-
-  state.transitionVideo = document.createElement("video");
-  state.transitionVideo.src = "./public/assets/transformation_transition.mp4";
-  state.transitionVideo.muted = true;
-  state.transitionVideo.playsInline = true;
-  state.transitionVideo.autoplay = false;
-  state.transitionVideo.loop = false; // Transition only plays once per transformation
-  state.transitionVideo.load();
-
-  // Create a hidden video container in the DOM to keep all video elements active
+  // Active hidden video container in DOM to keep mobile GPU video decoders active at 60 FPS
   const hiddenVideoContainer = document.createElement("div");
-  hiddenVideoContainer.style.position = "absolute";
-  hiddenVideoContainer.style.width = "0";
-  hiddenVideoContainer.style.height = "0";
-  hiddenVideoContainer.style.opacity = "0";
+  hiddenVideoContainer.id = "hiddenVideoContainer";
+  hiddenVideoContainer.style.position = "fixed";
+  hiddenVideoContainer.style.top = "0";
+  hiddenVideoContainer.style.left = "0";
+  hiddenVideoContainer.style.width = "1px";
+  hiddenVideoContainer.style.height = "1px";
+  hiddenVideoContainer.style.opacity = "0.001";
   hiddenVideoContainer.style.pointerEvents = "none";
+  hiddenVideoContainer.style.zIndex = "-9999";
   hiddenVideoContainer.style.overflow = "hidden";
-  elements.shell.appendChild(hiddenVideoContainer);
+  document.body.appendChild(hiddenVideoContainer);
 
   hiddenVideoContainer.appendChild(state.impactVideo);
   hiddenVideoContainer.appendChild(state.lightningVideo1);

@@ -27,6 +27,8 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 img {
