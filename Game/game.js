@@ -423,43 +423,49 @@ function setVisibleLevel(level) {
   updateStatus();
 }
 
+function setTextContent(el, text) {
+  if (el && el.textContent !== text) {
+    el.textContent = text;
+  }
+}
+
 function updateStatus(now = performance.now()) {
   const form = getForm();
   const charging = isCharging(now);
 
-  elements.formName.textContent = charging ? form.name : "TAP! TAP! TAP!";
+  setTextContent(elements.formName, charging ? form.name : "TAP! TAP! TAP!");
 
   if (state.transforming) {
-    elements.statusLine.textContent = `TRANSFORMATION SURGE`;
-    elements.energyState.textContent = `BREAKING LIMIT`;
-    elements.tapCallout.textContent = `${GAME_DATA.forms[Math.min(state.currentIndex + 1, GAME_DATA.forms.length - 1)].name}`;
+    setTextContent(elements.statusLine, `TRANSFORMATION SURGE`);
+    setTextContent(elements.energyState, `BREAKING LIMIT`);
+    setTextContent(elements.tapCallout, `${GAME_DATA.forms[Math.min(state.currentIndex + 1, GAME_DATA.forms.length - 1)].name}`);
     return;
   }
 
   if (isFinalForm()) {
-    elements.statusLine.textContent = `FINAL ASCENSION`;
-    elements.energyState.textContent = charging ? `MAX AURA` : `FINAL FORM`;
-    elements.tapCallout.textContent = charging ? form.name : `Ultimate Form Ready`;
+    setTextContent(elements.statusLine, `FINAL ASCENSION`);
+    setTextContent(elements.energyState, charging ? `MAX AURA` : `FINAL FORM`);
+    setTextContent(elements.tapCallout, charging ? form.name : `Ultimate Form Ready`);
     return;
   }
 
   if (charging) {
-    elements.statusLine.textContent = `POWERING ${form.name.toUpperCase()}`;
-    elements.energyState.textContent = `SURGING`;
-    elements.tapCallout.textContent = form.name.toUpperCase();
+    setTextContent(elements.statusLine, `POWERING ${form.name.toUpperCase()}`);
+    setTextContent(elements.energyState, `SURGING`);
+    setTextContent(elements.tapCallout, form.name.toUpperCase());
     return;
   }
 
   if (state.chargeAmount > 0) {
-    elements.statusLine.textContent = `AURA COOLING`;
-    elements.energyState.textContent = `DRAINING`;
-    elements.tapCallout.textContent = `Tap To Continue`;
+    setTextContent(elements.statusLine, `AURA COOLING`);
+    setTextContent(elements.energyState, `DRAINING`);
+    setTextContent(elements.tapCallout, `Tap To Continue`);
     return;
   }
 
-  elements.statusLine.textContent = `FORM READY`;
-  elements.energyState.textContent = `READY`;
-  elements.tapCallout.textContent = `Tap Anywhere To Power Up`;
+  setTextContent(elements.statusLine, `FORM READY`);
+  setTextContent(elements.energyState, `READY`);
+  setTextContent(elements.tapCallout, `Tap Anywhere To Power Up`);
 }
 
 function ensureAudioContext() {
