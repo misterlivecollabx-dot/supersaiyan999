@@ -1233,7 +1233,7 @@ function renderParticles(deltaSeconds) {
     isActive = true;
   }
 
-  if (isActive && lv && elements.spriteLayer && (!isLiteMode() || lv === state.transitionVideo)) {
+  if (isActive && lv && lv !== state.baseLightningVideo && elements.spriteLayer && (!isLiteMode() || lv === state.transitionVideo)) {
     const spriteRect = elements.spriteLayer.getBoundingClientRect();
     const canvasRect = elements.canvas.getBoundingClientRect();
 
