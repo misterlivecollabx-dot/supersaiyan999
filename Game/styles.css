@@ -433,7 +433,7 @@ button {
   z-index: 2;
   overflow: hidden;
   touch-action: none;
-  padding-bottom: 0px;
+  padding-bottom: clamp(18px, 3vh, 28px);
 }
 
 .charge-lens {
@@ -502,7 +502,7 @@ button {
   justify-content: center;
   align-items: flex-end;
   transform: translateY(0px);
-  margin: 0 auto;
+  margin: 0 auto 12px;
 }
 
 .charge-waves,
