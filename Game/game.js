@@ -2134,8 +2134,27 @@ function bootstrap() {
   initRocks();
   initVideo();
 
-  if (DEBUG_MODE) {
-    createDebugPanel();
+  // Auto-dismiss intro overlay so character & background are 100% visible on load
+  state.introDismissed = true;
+  if (elements.introOverlay) {
+    elements.introOverlay.classList.add("is-hidden");
+    elements.introOverlay.style.display = "none";
+  }
+
+  // Fallback handlers for images to guarantee visibility
+  if (elements.background) {
+    elements.background.addEventListener("error", () => {
+      if (!elements.background.src.endsWith("level-1.webp")) {
+        elements.background.src = "./public/assets/backgrounds/level-1.webp";
+      }
+    });
+  }
+  if (elements.spriteLayer) {
+    elements.spriteLayer.addEventListener("error", () => {
+      if (!elements.spriteLayer.src.endsWith("base-stand.webp")) {
+        elements.spriteLayer.src = "./public/assets/forms/base-stand.webp";
+      }
+    });
   }
 
   requestAnimationFrame(animate);
