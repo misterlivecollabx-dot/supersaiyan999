@@ -1224,30 +1224,6 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
 function renderParticles(deltaSeconds) {
   ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
 
-  // Render video frame if active (lightning or transformation transition)
-  let lv = state.activeLightningVideo;
-  let isActive = state.lightningActive;
-
-  if (state.transforming && state.transitionVideo && !state.transitionVideo.paused && !state.transitionVideo.ended) {
-    lv = state.transitionVideo;
-    isActive = true;
-  }
-
-  if (isActive && lv && lv !== state.baseLightningVideo && elements.spriteLayer && (!isLiteMode() || lv === state.transitionVideo)) {
-    const spriteRect = elements.spriteLayer.getBoundingClientRect();
-    const canvasRect = elements.canvas.getBoundingClientRect();
-
-    const destRect = {
-      x: spriteRect.left - canvasRect.left,
-      y: spriteRect.top - canvasRect.top,
-      w: spriteRect.width,
-      h: spriteRect.height
-    };
-
-    const compMode = "screen";
-    drawKeyedVideoFrame(lv, destRect, compMode);
-  }
-
   ctx.globalCompositeOperation = "screen";
 
   for (let index = state.waves.length - 1; index >= 0; index -= 1) {
