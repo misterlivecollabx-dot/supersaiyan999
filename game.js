@@ -1226,13 +1226,76 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
   } catch (e) {
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.drawImage(video, 0, 0, vWidth, vHeight, destRect.x, destRect.y, destRect.w, destRect.h);
     ctx.restore();
+  }
+}
+
+function renderVideoOverlays() {
+  const charging = isCharging();
+  const formKey = getForm().key;
+  const rect = elements.characterStack.getBoundingClientRect();
+  const canvasRect = elements.canvas.getBoundingClientRect();
+
+  if (rect.width <= 0 || rect.height <= 0) return;
+
+  const destRect = {
+    x: rect.left - canvasRect.left - rect.width * 0.25,
+    y: rect.top - canvasRect.top - rect.height * 0.25,
+    w: rect.width * 1.5,
+    h: rect.height * 1.5
+  };
+
+  let targetVideo = null;
+
+  if (charging || state.transforming) {
+    if (formKey === "kaioken" && state.kaiokenVideo) {
+      targetVideo = state.kaiokenVideo;
+    } else if ((formKey === "ssj1" || formKey === "ssj2" || formKey === "ssj3" || formKey === "ssj-blue" || formKey === "ssj-blue-kaioken") && state.ssj123LightningVideo) {
+      targetVideo = state.ssj123LightningVideo;
+    } else if (formKey === "beast" && state.beastLightningVideo) {
+      targetVideo = state.beastLightningVideo;
+    } else if ((formKey === "ultra-instinct" || formKey === "super-ultra-instinct") && state.superUltraVideo) {
+      targetVideo = state.superUltraVideo;
+    } else if (formKey === "false-ssj" && state.falseSsjVideo) {
+      targetVideo = state.falseSsjVideo;
+    } else if (state.ssj123LightningVideo) {
+      targetVideo = state.ssj123LightningVideo;
+    }
+  } else {
+    if ((formKey === "ssj2" || formKey === "ssj3") && state.ssj123LightningVideo) {
+      targetVideo = state.ssj123LightningVideo;
+    }
+  }
+
+  const allVideos = [
+    state.kaiokenVideo,
+    state.ssj123LightningVideo,
+    state.beastLightningVideo,
+    state.superUltraVideo,
+    state.falseSsjVideo,
+    state.baseLightningVideo
+  ];
+
+  allVideos.forEach((v) => {
+    if (v && v !== targetVideo) {
+      if (!v.paused) {
+        v.pause();
+      }
+    }
+  });
+
+  if (targetVideo) {
+    if (targetVideo.paused) {
+      targetVideo.play().catch(() => {});
+    }
+    drawKeyedVideoFrame(targetVideo, destRect, "screen");
   }
 }
 
 function renderParticles(deltaSeconds) {
   ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
+
+  renderVideoOverlays();
 
   ctx.globalCompositeOperation = "screen";
 
