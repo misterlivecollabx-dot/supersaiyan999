@@ -494,8 +494,8 @@ button {
 
 .character-stack {
   position: relative;
-  width: min(78vw, var(--character-width));
-  height: min(53vh, var(--character-height));
+  width: min(86vw, var(--character-width));
+  height: min(64vh, var(--character-height));
   display: flex;
   justify-content: center;
   align-items: flex-end;
