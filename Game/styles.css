@@ -561,14 +561,13 @@ button {
 
 .aura-layer {
   width: 112%;
-  height: 80%;
+  height: 100%;
   will-change: transform, opacity;
   transform: translateX(-50%) scale(calc(1 + var(--charge) * 0.08 + var(--aura-pulse, 0))) translateZ(0);
   opacity: 0;
-  filter:
-    drop-shadow(0 0 18px var(--aura-color, #6ac9ff))
-    drop-shadow(0 0 32px var(--accent-color, #8cf0ff));
   mix-blend-mode: screen;
+  mask-image: linear-gradient(to bottom, black 70%, transparent 98%);
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 98%);
   transition: opacity 220ms ease;
 }
 
