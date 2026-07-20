@@ -45,7 +45,7 @@ const GAME_DATA = {
       accentColor: "#8cf0ff",
       thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
       poseAdjust: {
-        stand: { x: 0.05, y: 3.3 },
+        stand: { x: 0.05, y: 0 },
       },
     },
     { key: "kaioken", name: "Kaioken", level: 1, threshold: 200, auraColor: "#ff4f7b", accentColor: "#ff9459", thumbCrop: { x: 50, y: 5, scale: 2.08 } },
@@ -58,7 +58,7 @@ const GAME_DATA = {
       accentColor: "#ff8d2f",
       thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
       poseAdjust: {
-        power: { x: 0, y: 6.2 },
+        power: { x: 0, y: 0 },
       },
     },
     {
@@ -70,8 +70,8 @@ const GAME_DATA = {
       accentColor: "#ffbb42",
       thumbCrop: { x: 50, y: 0.1, scale: 2.08 },
       poseAdjust: {
-        stand: { x: -0.35, y: 2.0 },
-        power: { x: -0.59, y: 1.6 },
+        stand: { x: -0.35, y: 0 },
+        power: { x: -0.59, y: 0 },
       },
     },
     { key: "ssj2", name: "Super Saiyan 2", level: 1, threshold: 500, auraColor: "#fff9a2", accentColor: "#e0b8ff", thumbCrop: { x: 50, y: 0.1, scale: 2.08 } },
@@ -88,7 +88,7 @@ const GAME_DATA = {
       accentColor: "#ffdc72",
       thumbCrop: { x: 30, y: 0.2, scale: 2.08 },
       poseAdjust: {
-        power: { x: -0.59, y: 1.6 },
+        power: { x: -0.59, y: 0 },
       },
     },
     {
@@ -100,7 +100,7 @@ const GAME_DATA = {
       accentColor: "#7fd1ff",
       thumbCrop: { x: 50, y: 6, scale: 2.08 },
       poseAdjust: {
-        power: { x: -0.08, y: 0.6 },
+        power: { x: -0.08, y: 0 },
       },
     },
     { key: "super-ultra-instinct", name: "Super Ultra Instinct", level: 3, threshold: 900, auraColor: "#c4ebff", accentColor: "#ffffff", thumbCrop: { x: 50, y: 6, scale: 2.08 } },
@@ -113,7 +113,7 @@ const GAME_DATA = {
       accentColor: "#ff7de9",
       thumbCrop: { x: 30, y: 5, scale: 2.08 },
       poseAdjust: {
-        power: { x: -2.4, y: 4.1 },
+        power: { x: -2.4, y: 0 },
       },
     },
     { key: "beast", name: "Super Saiyan Beast", level: 3, threshold: 1000, auraColor: "#ff6ecf", accentColor: "#7ec8ff", thumbCrop: { x: 35, y: 6, scale: 2.8 } },
@@ -126,8 +126,8 @@ const GAME_DATA = {
       accentColor: "#ffffff",
       thumbCrop: { x: 30, y: 6, scale: 2.8 },
       poseAdjust: {
-        stand: { x: 2.6, y: 0.9 },
-        power: { x: 2.4, y: 4.1 },
+        stand: { x: 2.6, y: 0 },
+        power: { x: 2.4, y: 0 },
       },
     },
   ],
