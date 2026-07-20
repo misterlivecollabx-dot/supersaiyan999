@@ -178,7 +178,7 @@ const elements = {
   backgroundCrater: document.getElementById("backgroundCraterLayer"),
 };
 
-const ctx = elements.canvas.getContext("2d", { alpha: true, desynchronized: true });
+const ctx = elements.canvas.getContext("2d", { alpha: true });
 const state = {
   currentIndex: 0,
   highestUnlocked: 0,
