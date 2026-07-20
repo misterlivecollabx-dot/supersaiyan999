@@ -81,7 +81,7 @@ button {
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
-  padding: var(--safe-top) 10px var(--safe-bottom);
+  padding: clamp(4px, 1vh, 8px) 8px clamp(6px, 1.2vh, 12px);
   box-sizing: border-box;
   isolation: isolate;
   touch-action: none;
@@ -249,7 +249,7 @@ button {
 
 .top-panel {
   position: relative;
-  padding: 10px 12px 14px;
+  padding: 6px 8px 8px;
   border: 2px solid #d89b1f;
   clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 16px 100%, 0 calc(100% - 16px), 0 16px);
   background:
@@ -294,7 +294,7 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-  margin-bottom: 9px;
+  margin-bottom: 4px;
   color: #ffe095;
   text-shadow:
     0 0 12px rgba(255, 191, 82, 0.26),
@@ -494,8 +494,8 @@ button {
 
 .character-stack {
   position: relative;
-  width: min(76vw, var(--character-width));
-  height: min(54vh, var(--character-height));
+  width: min(72vw, var(--character-width));
+  height: min(48vh, var(--character-height));
   display: flex;
   justify-content: center;
   align-items: flex-end;
