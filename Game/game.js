@@ -1020,7 +1020,7 @@ function flashScreen(strength = 1) {
 }
 
 function shakeScreen(amount = 10) {
-  state.shake = Math.min(24, state.shake + amount);
+  state.shake = 0;
 }
 
 function dismissIntro() {
@@ -1766,9 +1766,9 @@ function animate(now) {
   const floatAmplitude = charging ? 10 * (1 + ratio * 0.8) : 6;
   state.spriteFloat = Math.sin(now / floatSpeed) * floatAmplitude;
 
-  // Sprite Shake
-  state.spriteShakeX = charging ? (Math.random() - 0.5) * 8 * ratio : 0;
-  state.spriteShakeY = charging ? (Math.random() - 0.5) * 5 * ratio : 0;
+  // Sprite Shake (disabled per user request)
+  state.spriteShakeX = 0;
+  state.spriteShakeY = 0;
 
   // Apply custom properties to spriteLayer
   elements.spriteLayer.style.setProperty("--sprite-lift", `${totalSpriteLift}px`);
@@ -1824,15 +1824,8 @@ function animate(now) {
   // Camera zoom / scale based on charge ratio
   const shellScale = 1 + ratio * 0.015;
 
-  if (state.shake > 0.1) {
-    state.shake *= 0.88;
-    const offsetX = (Math.random() - 0.5) * state.shake;
-    const offsetY = (Math.random() - 0.5) * state.shake;
-    elements.shell.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${shellScale})`;
-  } else {
-    state.shake = 0;
-    elements.shell.style.transform = `translate(0, 0) scale(${shellScale})`;
-  }
+  state.shake = 0;
+  elements.shell.style.transform = `translate(0, 0) scale(${shellScale})`;
 
   updateVisualState(now);
   updateStatus(now);
