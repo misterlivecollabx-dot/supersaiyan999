@@ -781,6 +781,32 @@ function tapIntensity() {
   return Math.min(1, state.recentTaps.length / 11);
 }
 
+// Object Pooling to eliminate Garbage Collection allocations during gameplay
+const pools = {
+  particles: [],
+  waves: [],
+};
+
+function getParticleFromPool() {
+  return pools.particles.pop() || { x: 0, y: 0, vx: 0, vy: 0, size: 0, color: "#fff", life: 0, maxLife: 0, type: "" };
+}
+
+function releaseParticleToPool(particle) {
+  if (pools.particles.length < 120) {
+    pools.particles.push(particle);
+  }
+}
+
+function getWaveFromPool() {
+  return pools.waves.pop() || { x: 0, y: 0, radius: 0, grow: 0, width: 0, color: "#fff", life: 0, maxLife: 0 };
+}
+
+function releaseWaveToPool(wave) {
+  if (pools.waves.length < 30) {
+    pools.waves.push(wave);
+  }
+}
+
 function spawnParticles(count, options = {}) {
   if (isLiteMode()) {
     count = Math.max(4, Math.ceil(count * 0.45));
@@ -790,7 +816,8 @@ function spawnParticles(count, options = {}) {
   const particleCap = isLiteMode() ? 22 : 40;
   const particleTrimTarget = isLiteMode() ? 14 : 30;
   if (state.particles.length > particleCap) {
-    state.particles.splice(0, state.particles.length - particleTrimTarget);
+    const trimmed = state.particles.splice(0, state.particles.length - particleTrimTarget);
+    trimmed.forEach(releaseParticleToPool);
   }
 
   const rect = elements.characterStack.getBoundingClientRect();
@@ -804,17 +831,18 @@ function spawnParticles(count, options = {}) {
   for (let i = 0; i < count; i += 1) {
     const angle = Math.random() * Math.PI * 2;
     const speed = options.speedMin + Math.random() * (options.speedMax - options.speedMin);
-    state.particles.push({
-      x: baseX + (Math.random() - 0.5) * (options.scatterX ?? 40),
-      y: baseY + (Math.random() - 0.5) * (options.scatterY ?? 120),
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - (options.lift ?? 0),
-      size: options.sizeMin + Math.random() * (options.sizeMax - options.sizeMin),
-      color: palette[Math.floor(Math.random() * palette.length)],
-      life: options.lifeMin + Math.random() * (options.lifeMax - options.lifeMin),
-      maxLife: 0,
-    });
-    state.particles[state.particles.length - 1].maxLife = state.particles[state.particles.length - 1].life;
+    const lifeVal = options.lifeMin + Math.random() * (options.lifeMax - options.lifeMin);
+    const p = getParticleFromPool();
+    p.x = baseX + (Math.random() - 0.5) * (options.scatterX ?? 40);
+    p.y = baseY + (Math.random() - 0.5) * (options.scatterY ?? 120);
+    p.vx = Math.cos(angle) * speed;
+    p.vy = Math.sin(angle) * speed - (options.lift ?? 0);
+    p.size = options.sizeMin + Math.random() * (options.sizeMax - options.sizeMin);
+    p.color = palette[Math.floor(Math.random() * palette.length)];
+    p.life = lifeVal;
+    p.maxLife = lifeVal;
+    p.type = "";
+    state.particles.push(p);
   }
 }
 
@@ -822,22 +850,24 @@ function spawnWave(options = {}) {
   const waveCap = isLiteMode() ? 6 : 12;
   const waveTrimTarget = isLiteMode() ? 4 : 8;
   if (state.waves.length > waveCap) {
-    state.waves.splice(0, state.waves.length - waveTrimTarget);
+    const trimmed = state.waves.splice(0, state.waves.length - waveTrimTarget);
+    trimmed.forEach(releaseWaveToPool);
   }
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
   const rawX = options.x ?? (rect.left + rect.width / 2);
   const rawY = options.y ?? (rect.top + rect.height * 0.72);
-  state.waves.push({
-    x: rawX - canvasRect.left,
-    y: rawY - canvasRect.top,
-    radius: options.radius ?? 24,
-    grow: options.grow ?? 340,
-    width: options.width ?? 3,
-    color: options.color ?? getForm().accentColor,
-    life: options.life ?? 0.55,
-    maxLife: options.life ?? 0.55,
-  });
+  const lifeVal = options.life ?? 0.55;
+  const w = getWaveFromPool();
+  w.x = rawX - canvasRect.left;
+  w.y = rawY - canvasRect.top;
+  w.radius = options.radius ?? 24;
+  w.grow = options.grow ?? 340;
+  w.width = options.width ?? 3;
+  w.color = options.color ?? getForm().accentColor;
+  w.life = lifeVal;
+  w.maxLife = lifeVal;
+  state.waves.push(w);
 }
 
 function spawnArc(options = {}) {
@@ -1230,7 +1260,8 @@ function renderParticles(deltaSeconds) {
     const wave = state.waves[index];
     wave.life -= deltaSeconds;
     if (wave.life <= 0) {
-      state.waves.splice(index, 1);
+      const removed = state.waves.splice(index, 1)[0];
+      if (removed) releaseWaveToPool(removed);
       continue;
     }
     wave.radius += wave.grow * deltaSeconds;
@@ -1280,7 +1311,8 @@ function renderParticles(deltaSeconds) {
     const particle = state.particles[index];
     particle.life -= deltaSeconds;
     if (particle.life <= 0) {
-      state.particles.splice(index, 1);
+      const removed = state.particles.splice(index, 1)[0];
+      if (removed) releaseParticleToPool(removed);
       continue;
     }
 
@@ -1289,7 +1321,8 @@ function renderParticles(deltaSeconds) {
       const dy = targetY - particle.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < 15) {
-        state.particles.splice(index, 1);
+        const removed = state.particles.splice(index, 1)[0];
+        if (removed) releaseParticleToPool(removed);
         continue;
       }
       const speed = (280 + Math.random() * 120) * deltaSeconds;
@@ -1327,17 +1360,17 @@ function spawnInflowParticles(count) {
     const x = targetX + Math.cos(angle) * dist;
     const y = targetY + Math.sin(angle) * dist;
 
-    state.particles.push({
-      x,
-      y,
-      vx: 0,
-      vy: 0,
-      size: 1.5 + Math.random() * 2.5,
-      color: palette[Math.floor(Math.random() * palette.length)],
-      life: 0.8 + Math.random() * 0.4,
-      maxLife: 1.2,
-      type: "inflow",
-    });
+    const p = getParticleFromPool();
+    p.x = x;
+    p.y = y;
+    p.vx = 0;
+    p.vy = 0;
+    p.size = 1.5 + Math.random() * 2.5;
+    p.color = palette[Math.floor(Math.random() * palette.length)];
+    p.life = 0.8 + Math.random() * 0.4;
+    p.maxLife = 1.2;
+    p.type = "inflow";
+    state.particles.push(p);
   }
 }
 
@@ -2083,7 +2116,7 @@ function initVideo() {
 
 function preloadAllAssets() {
   state.imageCache = {};
-  const urlsToPreload = [
+  const initialUrls = [
     "./public/assets/backgrounds/level-1.webp",
     "./public/assets/backgrounds/level-2.webp",
     "./public/assets/backgrounds/level-3.webp",
@@ -2092,13 +2125,14 @@ function preloadAllAssets() {
     "./public/assets/backgrounds/level-3-crater.jpg"
   ];
 
-  GAME_DATA.forms.forEach((form) => {
-    if (form.stand) urlsToPreload.push(form.stand);
-    if (form.power) urlsToPreload.push(form.power);
-    if (form.aura) urlsToPreload.push(form.aura);
+  // Tier 1: Initial & Level 1 / Level 2 forms (immediate priority)
+  GAME_DATA.forms.slice(0, 8).forEach((form) => {
+    if (form.stand) initialUrls.push(form.stand);
+    if (form.power) initialUrls.push(form.power);
+    if (form.aura) initialUrls.push(form.aura);
   });
 
-  urlsToPreload.forEach((url) => {
+  initialUrls.forEach((url) => {
     const img = new Image();
     img.src = url;
     state.imageCache[url] = img;
@@ -2106,6 +2140,26 @@ function preloadAllAssets() {
       img.decode().catch(() => {});
     }
   });
+
+  // Tier 2: Higher Level 3 forms (deferred background preload)
+  const deferredPreload = () => {
+    GAME_DATA.forms.slice(8).forEach((form) => {
+      [form.stand, form.power, form.aura].forEach((url) => {
+        if (url && !state.imageCache[url]) {
+          const img = new Image();
+          img.src = url;
+          state.imageCache[url] = img;
+          if (img.decode) img.decode().catch(() => {});
+        }
+      });
+    });
+  };
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(deferredPreload, { timeout: 2000 });
+  } else {
+    setTimeout(deferredPreload, 1500);
+  }
 }
 
 function bootstrap() {
