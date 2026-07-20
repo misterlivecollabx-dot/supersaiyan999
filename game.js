@@ -1213,9 +1213,8 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
     ctx.drawImage(state.procCanvas, 0, 0, procW, procH, destRect.x, destRect.y, destRect.w, destRect.h);
     ctx.restore();
   } catch (e) {
-    ctx.save();
-    ctx.globalCompositeOperation = "screen";
-    ctx.restore();
+    // If keying fails, do NOT draw the raw unkeyed video to prevent green screen
+    return;
   }
 }
 
@@ -2102,7 +2101,6 @@ function playLazyVideo(video) {
 function initVideo() {
   const createVideo = (src, loop = true) => {
     const v = document.createElement("video");
-    v.crossOrigin = "anonymous";
     v.src = resolveVideoSource(src);
     v.muted = true;
     v.playsInline = true;
@@ -2110,7 +2108,7 @@ function initVideo() {
     v.setAttribute("webkit-playsinline", "");
     v.autoplay = false;
     v.loop = loop;
-    v.preload = "none";
+    v.preload = "auto";
     return v;
   };
 
