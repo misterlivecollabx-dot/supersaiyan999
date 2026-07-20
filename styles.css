@@ -493,13 +493,13 @@ button {
 
 .character-stack {
   position: relative;
-  width: min(80vw, var(--character-width));
-  height: min(65vh, calc(var(--character-height) * 0.88));
+  width: min(94vw, var(--character-width));
+  height: min(78vh, var(--character-height));
   display: flex;
   justify-content: center;
   align-items: flex-end;
   transform: translateY(var(--character-lift));
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .charge-waves,

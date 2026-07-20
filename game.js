@@ -778,8 +778,8 @@ function resizeCanvas() {
   const bottomHudHeight = bottomHudEl ? bottomHudEl.getBoundingClientRect().height : 100;
 
   const availableArenaHeight = Math.max(140, vh - topHudHeight - bottomHudHeight);
-  const characterHeight = Math.max(130, Math.min(820, Math.floor(availableArenaHeight * 0.90)));
-  const characterWidth = Math.max(120, Math.min(480, Math.floor(Math.min(shellWidth * 0.84, characterHeight * 0.68))));
+  const characterHeight = Math.max(150, Math.min(880, Math.floor(availableArenaHeight * 0.98)));
+  const characterWidth = Math.max(140, Math.min(520, Math.floor(Math.min(shellWidth * 0.92, characterHeight * 0.75))));
 
   document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
   document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
@@ -1177,16 +1177,8 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
   const vHeight = video.videoHeight || 360;
   if (vWidth <= 0 || vHeight <= 0) return;
 
-  if (isLiteMode()) {
-    ctx.save();
-    ctx.globalCompositeOperation = compositeMode;
-    ctx.drawImage(video, 0, 0, vWidth, vHeight, destRect.x, destRect.y, destRect.w, destRect.h);
-    ctx.restore();
-    return;
-  }
-
-  const procW = 320;
-  const procH = 180;
+  const procW = 256;
+  const procH = 144;
 
   if (!state.procCanvas) {
     state.procCanvas = document.createElement("canvas");
@@ -1202,25 +1194,22 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
     const data = imgData.data;
     const len = data.length;
 
+    // Green screen removal (#00FF00) & black noise keying on ALL devices
     for (let i = 0; i < len; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
 
-      // Robust green screen removal (#00FF00) and black noise keying
-      if (g > 50 && g > r * 1.04 && g > b * 1.04) {
-        data[i + 3] = 0;
-      } else if (r < 20 && g < 20 && b < 20) {
-        data[i + 3] = 0;
+      if ((g > 40 && g > r * 1.04 && g > b * 1.04) || (r < 22 && g < 22 && b < 22)) {
+        data[i + 3] = 0; // 100% Transparent
       }
     }
 
     state.procCtx.putImageData(imgData, 0, 0);
 
     ctx.save();
-    ctx.globalCompositeOperation = compositeMode;
+    ctx.globalCompositeOperation = "source-over";
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium";
     ctx.drawImage(state.procCanvas, 0, 0, procW, procH, destRect.x, destRect.y, destRect.w, destRect.h);
     ctx.restore();
   } catch (e) {
