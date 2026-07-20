@@ -494,8 +494,10 @@ button {
 
 .character-stack {
   position: relative;
-  width: min(90vw, var(--character-width));
-  height: min(72vh, var(--character-height));
+  width: var(--character-width);
+  height: var(--character-height);
+  max-width: 92vw;
+  max-height: 68vh;
   display: flex;
   justify-content: center;
   align-items: flex-end;
