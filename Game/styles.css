@@ -226,7 +226,7 @@ button {
   left: 18px;
   right: 18px;
   display: block;
-  z-index: 3;
+  z-index: 20;
   transform: scale(var(--hud-scale));
   transform-origin: top center;
 }
@@ -704,7 +704,7 @@ button {
   bottom: var(--safe-bottom);
   display: grid;
   gap: 10px;
-  z-index: 3;
+  z-index: 20;
   transform: scale(var(--hud-scale));
   transform-origin: bottom center;
 }
