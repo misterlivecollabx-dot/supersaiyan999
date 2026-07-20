@@ -242,11 +242,7 @@ const state = {
 };
 
 function detectPerformanceMode() {
-  const hasTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
-  const compactViewport = window.matchMedia("(max-width: 768px)").matches || window.matchMedia("(max-height: 900px)").matches;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const limitedMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
-  return hasTouch && (compactViewport || reducedMotion || limitedMemory) ? "mobile-lite" : "full";
+  return "full";
 }
 
 function isLiteMode() {
