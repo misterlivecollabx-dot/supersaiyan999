@@ -1194,13 +1194,18 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
     const data = imgData.data;
     const len = data.length;
 
-    // Green screen removal (#00FF00) & black noise keying on ALL devices
+    // Ultra-robust green screen keying (#00FF00 & all green hues) + dark background noise removal
     for (let i = 0; i < len; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
 
-      if ((g > 40 && g > r * 1.04 && g > b * 1.04) || (r < 22 && g < 22 && b < 22)) {
+      const maxRGB = Math.max(r, g, b);
+      const isGreenDominant = (g === maxRGB && g > 30 && (g > r * 1.02 || g > b * 1.02));
+      const isPureGreen = (g > 35 && g > r * 0.95 && g > b * 0.95 && (g - r > 12 || g - b > 12));
+      const isBlackOrDark = (r < 25 && g < 25 && b < 25);
+
+      if (isGreenDominant || isPureGreen || isBlackOrDark) {
         data[i + 3] = 0; // 100% Transparent
       }
     }
@@ -2109,6 +2114,9 @@ function initVideo() {
     v.autoplay = false;
     v.loop = loop;
     v.preload = "auto";
+    v.style.display = "none";
+    v.style.visibility = "hidden";
+    v.style.pointerEvents = "none";
     return v;
   };
 
@@ -2126,13 +2134,14 @@ function initVideo() {
   const hiddenVideoContainer = document.createElement("div");
   hiddenVideoContainer.id = "hiddenVideoContainer";
   hiddenVideoContainer.style.position = "fixed";
-  hiddenVideoContainer.style.top = "0";
-  hiddenVideoContainer.style.left = "0";
+  hiddenVideoContainer.style.top = "-9999px";
+  hiddenVideoContainer.style.left = "-9999px";
   hiddenVideoContainer.style.width = "1px";
   hiddenVideoContainer.style.height = "1px";
-  hiddenVideoContainer.style.opacity = "0.001";
+  hiddenVideoContainer.style.opacity = "0";
   hiddenVideoContainer.style.pointerEvents = "none";
   hiddenVideoContainer.style.zIndex = "-9999";
+  hiddenVideoContainer.style.display = "none";
   hiddenVideoContainer.style.overflow = "hidden";
   document.body.appendChild(hiddenVideoContainer);
 
