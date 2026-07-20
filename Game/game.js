@@ -178,7 +178,7 @@ const elements = {
   backgroundCrater: document.getElementById("backgroundCraterLayer"),
 };
 
-const ctx = elements.canvas.getContext("2d");
+const ctx = elements.canvas.getContext("2d", { alpha: true, desynchronized: true });
 const state = {
   currentIndex: 0,
   highestUnlocked: 0,
@@ -242,6 +242,35 @@ const state = {
 };
 
 function detectPerformanceMode() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedMode = params.get("performance");
+  if (requestedMode === "lite" || requestedMode === "mobile-lite") {
+    return "mobile-lite";
+  }
+  if (requestedMode === "full") {
+    return "full";
+  }
+
+  const userAgent = navigator.userAgent || "";
+  const touchCapable = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+  const isAndroid = /Android/i.test(userAgent);
+  const isAndroidChrome = isAndroid && /Chrome|CriOS/i.test(userAgent);
+  const isEmulator = /sdk_gphone|emulator|generic|x86_64/i.test(userAgent);
+  const lowCoreCount = (navigator.hardwareConcurrency || 4) <= 6;
+  const lowMemoryDevice =
+    typeof navigator.deviceMemory === "number" ? navigator.deviceMemory <= 4 : isAndroid;
+  const smallViewport = Math.min(window.innerWidth, window.innerHeight) <= 900;
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  if (
+    reducedMotion ||
+    isEmulator ||
+    (isAndroidChrome && (lowCoreCount || lowMemoryDevice)) ||
+    (touchCapable && smallViewport && lowCoreCount && lowMemoryDevice)
+  ) {
+    return "mobile-lite";
+  }
+
   return "full";
 }
 
@@ -2068,16 +2097,18 @@ function initVideo() {
     return v;
   };
 
-  state.impactVideo = createVideo("./public/assets/istockphoto-1144855437-640_adpp_is.mp4", false);
-  state.lightningVideo1 = createVideo("./public/assets/istockphoto-1610125395-640_adpp_is.mp4", false);
-  state.lightningVideo2 = createVideo("./public/assets/km_20260716_1440p_60f_20260716_135312.mp4", false);
-  state.baseLightningVideo = createVideo("./public/assets/level_1_1.mp4", true);
-  state.beastLightningVideo = createVideo("./public/assets/super_saiyan_beast.mp4", true);
-  state.ssj123LightningVideo = createVideo("./public/assets/ssj123_lightning.mp4", true);
-  state.superUltraVideo = createVideo("./public/assets/super_ultra.mp4", true);
-  state.falseSsjVideo = createVideo("./public/assets/false_ssj.mp4", true);
-  state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
   state.transitionVideo = createVideo("./public/assets/transformation_transition.mp4", false);
+  if (!isLiteMode()) {
+    state.impactVideo = createVideo("./public/assets/istockphoto-1144855437-640_adpp_is.mp4", false);
+    state.lightningVideo1 = createVideo("./public/assets/istockphoto-1610125395-640_adpp_is.mp4", false);
+    state.lightningVideo2 = createVideo("./public/assets/km_20260716_1440p_60f_20260716_135312.mp4", false);
+    state.baseLightningVideo = createVideo("./public/assets/level_1_1.mp4", true);
+    state.beastLightningVideo = createVideo("./public/assets/super_saiyan_beast.mp4", true);
+    state.ssj123LightningVideo = createVideo("./public/assets/ssj123_lightning.mp4", true);
+    state.superUltraVideo = createVideo("./public/assets/super_ultra.mp4", true);
+    state.falseSsjVideo = createVideo("./public/assets/false_ssj.mp4", true);
+    state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
+  }
 
   // Keep videos attached in DOM for desktop playback stability without forcing every decoder on mobile.
   const hiddenVideoContainer = document.createElement("div");
@@ -2117,9 +2148,10 @@ function preloadAllAssets() {
     "./public/assets/backgrounds/level-2-crater.jpg",
     "./public/assets/backgrounds/level-3-crater.jpg"
   ];
+  const eagerFormCount = isLiteMode() ? 4 : 8;
 
   // Tier 1: Initial & Level 1 / Level 2 forms (immediate priority)
-  GAME_DATA.forms.slice(0, 8).forEach((form) => {
+  GAME_DATA.forms.slice(0, eagerFormCount).forEach((form) => {
     if (form.stand) initialUrls.push(form.stand);
     if (form.power) initialUrls.push(form.power);
     if (form.aura) initialUrls.push(form.aura);
@@ -2136,7 +2168,7 @@ function preloadAllAssets() {
 
   // Tier 2: Higher Level 3 forms (deferred background preload)
   const deferredPreload = () => {
-    GAME_DATA.forms.slice(8).forEach((form) => {
+    GAME_DATA.forms.slice(eagerFormCount).forEach((form) => {
       [form.stand, form.power, form.aura].forEach((url) => {
         if (url && !state.imageCache[url]) {
           const img = new Image();
