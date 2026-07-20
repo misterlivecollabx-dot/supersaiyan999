@@ -20,7 +20,7 @@
   --arena-bottom: 118px;
   --character-width: 420px;
   --character-height: 760px;
-  --character-lift: -12px;
+  --character-lift: 0px;
 }
 
 * {
@@ -427,13 +427,13 @@ button {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   outline: none;
   z-index: 2;
   overflow: hidden;
   touch-action: none;
-  padding-bottom: clamp(16px, 3vh, 32px);
+  padding-bottom: 0px;
 }
 
 .charge-lens {
@@ -494,12 +494,12 @@ button {
 
 .character-stack {
   position: relative;
-  width: min(94vw, var(--character-width));
-  height: min(76vh, var(--character-height));
+  width: min(84vw, var(--character-width));
+  height: min(62vh, var(--character-height));
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  transform: translateY(var(--character-lift));
+  transform: translateY(0px);
   margin: 0 auto;
 }
 
