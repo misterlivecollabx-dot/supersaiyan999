@@ -253,21 +253,11 @@ function detectPerformanceMode() {
 
   const userAgent = navigator.userAgent || "";
   const touchCapable = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
-  const isAndroid = /Android/i.test(userAgent);
-  const isAndroidChrome = isAndroid && /Chrome|CriOS/i.test(userAgent);
-  const isEmulator = /sdk_gphone|emulator|generic|x86_64/i.test(userAgent);
-  const lowCoreCount = (navigator.hardwareConcurrency || 4) <= 6;
-  const lowMemoryDevice =
-    typeof navigator.deviceMemory === "number" ? navigator.deviceMemory <= 4 : isAndroid;
+  const isMobileOS = /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(userAgent);
   const smallViewport = Math.min(window.innerWidth, window.innerHeight) <= 900;
   const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-  if (
-    reducedMotion ||
-    isEmulator ||
-    (isAndroidChrome && (lowCoreCount || lowMemoryDevice)) ||
-    (touchCapable && smallViewport && lowCoreCount && lowMemoryDevice)
-  ) {
+  if (reducedMotion || isMobileOS || touchCapable || smallViewport) {
     return "mobile-lite";
   }
 
@@ -327,7 +317,7 @@ function isFinalForm() {
 }
 
 function isCharging(now = performance.now()) {
-  return state.transforming || now - state.lastTapAt <= 1000;
+  return state.transforming || (now - state.lastTapAt <= 800 && state.lastTapAt > 0);
 }
 
 function chargeRatio() {
@@ -339,19 +329,27 @@ function updateTheme() {
   const charging = isCharging();
   const poseKey = charging ? "power" : "stand";
   const poseAdjust = form.poseAdjust?.[poseKey] ?? { x: 0, y: 0 };
-  document.documentElement.style.setProperty("--aura-color", form.auraColor);
-  document.documentElement.style.setProperty("--accent-color", form.accentColor);
-  document.documentElement.style.setProperty("--sprite-offset-x", `${poseAdjust.x ?? 0}%`);
-  document.documentElement.style.setProperty("--sprite-offset-y", `${poseAdjust.y ?? 0}%`);
-  const bgSrc = GAME_DATA.backgrounds[form.level];
+  elements.shell.style.setProperty("--aura-color", form.auraColor);
+  elements.shell.style.setProperty("--accent-color", form.accentColor);
+  elements.shell.style.setProperty("--sprite-offset-x", `${poseAdjust.x ?? 0}%`);
+  elements.shell.style.setProperty("--sprite-offset-y", `${poseAdjust.y ?? 0}%`);
+  const CLEAN_BG = {
+    1: "./public/assets/backgrounds/level-1.webp",
+    2: "./public/assets/backgrounds/level-2.webp",
+    3: "./public/assets/backgrounds/level-3.webp"
+  };
+  const CRATER_BG = {
+    1: "./public/assets/backgrounds/level-1-crater.webp",
+    2: "./public/assets/backgrounds/level-2-crater.jpg",
+    3: "./public/assets/backgrounds/level-3-crater.jpg"
+  };
+
+  const bgSrc = charging ? (CRATER_BG[form.level] || CLEAN_BG[form.level]) : CLEAN_BG[form.level];
   state.currentBgSrc = bgSrc;
   if (state.lastAppliedBgSrc !== bgSrc) {
     state.lastAppliedBgSrc = bgSrc;
     elements.background.src = bgSrc;
   }
-  // Reset crater overlay when switching forms
-  elements.backgroundCrater.style.backgroundImage = "";
-  elements.backgroundCrater.style.opacity = "0";
   elements.levelPill.textContent = `LEVEL ${state.visibleLevel}`;
   const targetSpriteSrc = charging ? form.power : form.stand;
   state.lastAppliedSpriteSrc = targetSpriteSrc;
@@ -524,41 +522,35 @@ function setTextContent(el, text) {
 
 function updateStatus(now = performance.now()) {
   const form = getForm();
-  const charging = isCharging(now);
+  const active = isCharging(now) || state.chargeAmount > 0;
 
-  setTextContent(elements.formName, charging ? form.name : "TAP! TAP! TAP!");
+  // Always keep formName as the actual Form Name (e.g. "Base", "Super Saiyan 1")
+  setTextContent(elements.formName, form.name);
 
   if (state.transforming) {
     setTextContent(elements.statusLine, `TRANSFORMATION SURGE`);
     setTextContent(elements.energyState, `BREAKING LIMIT`);
-    setTextContent(elements.tapCallout, `${GAME_DATA.forms[Math.min(state.currentIndex + 1, GAME_DATA.forms.length - 1)].name}`);
+    setTextContent(elements.tapCallout, `TRANSFORMING TO ${GAME_DATA.forms[Math.min(state.currentIndex + 1, GAME_DATA.forms.length - 1)].name.toUpperCase()}`);
     return;
   }
 
   if (isFinalForm()) {
     setTextContent(elements.statusLine, `FINAL ASCENSION`);
-    setTextContent(elements.energyState, charging ? `MAX AURA` : `FINAL FORM`);
-    setTextContent(elements.tapCallout, charging ? form.name : `Ultimate Form Ready`);
+    setTextContent(elements.energyState, active ? `MAX AURA` : `FINAL FORM`);
+    setTextContent(elements.tapCallout, active ? `ULTIMATE AURA ACTIVE` : `TAP TO ASCEND ULTIMATE FORM`);
     return;
   }
 
-  if (charging) {
+  if (active) {
     setTextContent(elements.statusLine, `POWERING ${form.name.toUpperCase()}`);
     setTextContent(elements.energyState, `SURGING`);
-    setTextContent(elements.tapCallout, form.name.toUpperCase());
-    return;
-  }
-
-  if (state.chargeAmount > 0) {
-    setTextContent(elements.statusLine, `AURA COOLING`);
-    setTextContent(elements.energyState, `DRAINING`);
-    setTextContent(elements.tapCallout, `Tap To Continue`);
+    setTextContent(elements.tapCallout, `TAP TO POWER UP & TRANSFORM`);
     return;
   }
 
   setTextContent(elements.statusLine, `FORM READY`);
   setTextContent(elements.energyState, `READY`);
-  setTextContent(elements.tapCallout, `Tap Anywhere To Power Up`);
+  setTextContent(elements.tapCallout, `TAP ANYWHERE TO POWER UP`);
 }
 
 function ensureAudioContext() {
@@ -769,6 +761,9 @@ function resizeCanvas() {
   applyPerformanceMode();
   const vw = window.innerWidth;
   const vh = window.innerHeight;
+  const realVh = vh * 0.01;
+  document.documentElement.style.setProperty("--real-vh", `${realVh}px`);
+
   const shellWidth = Math.min(vw, Math.max(280, Math.min(640, vh * 0.65)));
   const hudScale = Math.max(0.55, Math.min(1.0, Math.min(shellWidth / 440, vh / 740)));
 
@@ -782,20 +777,15 @@ function resizeCanvas() {
   const topHudHeight = topHudEl ? topHudEl.getBoundingClientRect().height : 120;
   const bottomHudHeight = bottomHudEl ? bottomHudEl.getBoundingClientRect().height : 100;
 
-  const arenaTop = Math.max(65, Math.min(180, Math.ceil(topHudHeight + 8)));
-  const arenaBottom = Math.max(80, Math.min(200, Math.ceil(bottomHudHeight + 28)));
-
-  const availableArenaHeight = Math.max(140, vh - arenaTop - arenaBottom);
-  const characterHeight = Math.max(130, Math.min(820, Math.floor(availableArenaHeight * 0.92)));
+  const availableArenaHeight = Math.max(140, vh - topHudHeight - bottomHudHeight);
+  const characterHeight = Math.max(130, Math.min(820, Math.floor(availableArenaHeight * 0.90)));
   const characterWidth = Math.max(120, Math.min(480, Math.floor(Math.min(shellWidth * 0.84, characterHeight * 0.68))));
 
-  document.documentElement.style.setProperty("--arena-top", `${arenaTop}px`);
-  document.documentElement.style.setProperty("--arena-bottom", `${arenaBottom}px`);
   document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
   document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
 
-  const isMobileDevice = window.innerWidth <= 768 || ("ontouchstart" in window);
-  const maxDpr = isLiteMode() ? 1.0 : (isMobileDevice ? 1.25 : 2.0);
+  const isMobileDevice = window.innerWidth <= 768 || ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+  const maxDpr = isLiteMode() ? 1.0 : (isMobileDevice ? 1.0 : 2.0);
   const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
   elements.canvas.width = Math.floor(shellWidth * dpr);
   elements.canvas.height = Math.floor(vh * dpr);
@@ -1100,59 +1090,30 @@ function tryTransform() {
   const nextForm = GAME_DATA.forms[nextIndex];
   const levelJump = nextForm.level > getForm().level;
   state.transforming = true;
-  state.transformUntil = performance.now() + 1320;
-  state.chargeAmount = currentTarget();
+  state.lastTapAt = performance.now();
   elements.shell.classList.add("is-transforming");
-  elements.shell.classList.remove("is-vanishing", "is-reappearing");
+
   clearTransformTimers();
-  if (state.transitionVideo) {
-    playLazyVideo(state.transitionVideo);
+
+  if (unlocking) {
+    state.highestUnlocked = nextIndex;
   }
-  flashScreen(1.1);
-  shakeScreen(20);
+  setCurrentForm(nextIndex);
+  flashScreen(0.3);
   spawnTransformBurst();
-  spawnWave({ radius: 42, grow: 860, life: 1.05, width: 6, color: nextForm.accentColor });
-  state.bloomStrength = 1.4;
   playTransformSound();
   playEnergyExplosionSound();
-  pulseTone({ frequency: 170, glideTo: 900, duration: 0.45, gain: 0.09, type: "sawtooth" });
-  queueTransformStep(() => {
-    if (unlocking) {
-      state.highestUnlocked = nextIndex;
-    }
-    setCurrentForm(nextIndex);
-    flashScreen(0.7);
-    shakeScreen(16);
-    spawnParticles(35, {
-      speedMin: 32,
-      speedMax: 110,
-      sizeMin: 2,
-      sizeMax: 7,
-      lifeMin: 0.32,
-      lifeMax: 0.95,
-      scatterX: 90,
-      scatterY: 90,
-      lift: 30,
-      palette: [nextForm.auraColor, nextForm.accentColor, "#ffffff"],
-    });
-  }, 180);
-  queueTransformStep(() => {
-    if (unlocking) {
-      state.visibleLevel = nextForm.level;
-      playUnlockTone();
-      showToast(`${nextForm.name} UNLOCKED`);
-    } else {
-      state.visibleLevel = nextForm.level;
-      showToast(`${nextForm.name}`);
-    }
-    renderFormStrip();
-    if (levelJump) {
-      playLevelCompleteSound();
-    }
-  }, 560);
-  queueTransformStep(() => {
-    elements.shell.classList.remove("is-reappearing");
-  }, 860);
+
+  if (unlocking) {
+    state.visibleLevel = nextForm.level;
+    playUnlockTone();
+    showToast(`${nextForm.name} UNLOCKED`);
+  } else {
+    state.visibleLevel = nextForm.level;
+    showToast(`${nextForm.name}`);
+  }
+  renderFormStrip();
+
   queueTransformStep(() => {
     state.transforming = false;
     state.chargeAmount = 0;
@@ -1161,7 +1122,7 @@ function tryTransform() {
     updateTheme();
     updateStatus();
     clearTransformTimers();
-  }, 1320);
+  }, 400);
 }
 
 function handleTap(clientX, clientY) {
@@ -1173,7 +1134,7 @@ function handleTap(clientX, clientY) {
   }
 
   const now = performance.now();
-  const wasIdle = (now - state.lastTapAt > 2000) && !state.transforming;
+  const wasIdle = !state.transforming && (now - state.lastTapAt > 2500);
 
   state.lastTapAt = now;
   state.recentTaps.push(state.lastTapAt);
@@ -1182,22 +1143,12 @@ function handleTap(clientX, clientY) {
     state.chargeAmount = Math.min(currentTarget(), state.chargeAmount);
   }
 
-  // Initiate jump-slam animation only when transitioning from idle/normal state
-  if (wasIdle) {
-    state.jumpTimer = 0.22;
-    state.jumpElapsed = 0;
-  }
-
   const targetPowerSrc = getForm().power;
   if (state.lastAppliedSpriteSrc !== targetPowerSrc) {
     state.lastAppliedSpriteSrc = targetPowerSrc;
     elements.spriteLayer.src = targetPowerSrc;
   }
   spawnTapBurst(clientX, clientY);
-  animateImpactRing();
-  flashScreen(0.16);
-  shakeScreen(3 + tapIntensity() * 5);
-  state.bloomStrength = Math.min(1, state.bloomStrength + 0.45);
   playTapTone();
   tryTransform();
   updateStatus();
@@ -1404,14 +1355,14 @@ function spawnInflowParticles(count) {
 }
 
 function updateVisualState(now) {
-  const charging = isCharging(now);
+  const activePower = isCharging(now) || state.chargeAmount > 0;
   const form = getForm();
   const auraCharge = visualAuraCharge(now);
-  elements.shell.classList.toggle("is-charging", charging);
-  elements.shell.classList.toggle("is-idle", !charging && !state.transforming);
+  elements.shell.classList.toggle("is-charging", activePower);
+  elements.shell.classList.toggle("is-idle", !activePower && !state.transforming);
 
   // Guard spriteLayer.src changes so browser doesn't re-parse image texture on every frame
-  const targetSpriteSrc = charging ? form.power : form.stand;
+  const targetSpriteSrc = activePower ? form.power : form.stand;
   if (state.lastAppliedSpriteSrc !== targetSpriteSrc) {
     state.lastAppliedSpriteSrc = targetSpriteSrc;
     elements.spriteLayer.src = targetSpriteSrc;
@@ -1421,8 +1372,8 @@ function updateVisualState(now) {
     elements.auraLayer.style.opacity = "0";
     elements.auraLayer.style.visibility = "hidden";
   } else {
-    elements.auraLayer.style.opacity = charging ? `${(0.76 + tapIntensity() * 0.18).toFixed(2)}` : "0";
-    elements.auraLayer.style.visibility = charging ? "visible" : "hidden";
+    elements.auraLayer.style.opacity = activePower ? "0.85" : "0";
+    elements.auraLayer.style.visibility = activePower ? "visible" : "hidden";
   }
 
   if (form.aura && state.lastAppliedAuraSrc !== form.aura) {
@@ -1430,20 +1381,22 @@ function updateVisualState(now) {
     elements.auraLayer.src = form.aura;
   }
 
-  document.documentElement.style.setProperty("--charge", `${auraCharge.toFixed(3)}`);
-  document.documentElement.style.setProperty("--intensity", `${tapIntensity().toFixed(3)}`);
+  elements.shell.style.setProperty("--charge", `${auraCharge.toFixed(3)}`);
+  elements.shell.style.setProperty("--intensity", `${tapIntensity().toFixed(3)}`);
 }
 
 function animate(now) {
   const deltaSeconds = Math.min(0.04, (now - state.lastFrame) / 1000);
   state.lastFrame = now;
 
-  if (!state.transforming && !isCharging(now) && state.chargeAmount > 0) {
-    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 0.34);
+  const isIdle = !state.transforming && (now - state.lastTapAt > 800);
+
+  if (isIdle && state.chargeAmount > 0) {
+    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 5.0);
   }
 
-  if (isFinalForm() && !isCharging(now)) {
-    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 0.3);
+  if (isIdle && isFinalForm()) {
+    state.chargeAmount = Math.max(0, state.chargeAmount - currentTarget() * deltaSeconds * 5.0);
   }
 
   const charging = isCharging(now);
@@ -1728,32 +1681,21 @@ function animate(now) {
 
   // ← LEVEL 2: tap pe yahi image overlay hogi — path yahan badlein
   const form = getForm();
-  const LEVEL_2_CRATER_IMAGE = "url('./public/assets/backgrounds/level-2-crater.jpg')";
-  const LEVEL_3_CRATER_IMAGE = "url('./public/assets/backgrounds/level-3-crater.jpg')";
+  const CLEAN_BG = {
+    1: "./public/assets/backgrounds/level-1.webp",
+    2: "./public/assets/backgrounds/level-2.webp",
+    3: "./public/assets/backgrounds/level-3.webp"
+  };
+  const CRATER_BG = {
+    1: "./public/assets/backgrounds/level-1-crater.webp",
+    2: "./public/assets/backgrounds/level-2-crater.jpg",
+    3: "./public/assets/backgrounds/level-3-crater.jpg"
+  };
 
-  if (form.level === 3 && charging) {
-    if (elements.backgroundCrater.style.backgroundImage !== LEVEL_3_CRATER_IMAGE) {
-      elements.backgroundCrater.style.backgroundImage = LEVEL_3_CRATER_IMAGE;
-    }
-  } else if (form.level === 2 && charging) {
-    if (elements.backgroundCrater.style.backgroundImage !== LEVEL_2_CRATER_IMAGE) {
-      elements.backgroundCrater.style.backgroundImage = LEVEL_2_CRATER_IMAGE;
-    }
-  } else if (form.level === 1 && state.craterActive) {
-    const L1 = "url('./public/assets/backgrounds/level-1-crater.webp')";
-    if (elements.backgroundCrater.style.backgroundImage !== L1) {
-      elements.backgroundCrater.style.backgroundImage = L1;
-    }
-  }
-
-  const targetCraterOpacity = (
-    (form.level === 3 && charging) ||
-    (form.level === 2 && charging) ||
-    (form.level === 1 && state.craterActive)
-  ) ? "1" : "0";
-
-  if (elements.backgroundCrater.style.opacity !== targetCraterOpacity) {
-    elements.backgroundCrater.style.opacity = targetCraterOpacity;
+  const targetBgSrc = charging ? (CRATER_BG[form.level] || CLEAN_BG[form.level]) : CLEAN_BG[form.level];
+  if (state.lastAppliedBgSrc !== targetBgSrc) {
+    state.lastAppliedBgSrc = targetBgSrc;
+    elements.background.src = targetBgSrc;
   }
 
   const emberChance = isLiteMode() ? (charging ? 0.2 : 0.06) : (charging ? 0.54 : 0.18);
@@ -1850,11 +1792,9 @@ function animate(now) {
     elements.tapBloom.style.transform = `translateX(-50%) scale(${0.65 + state.bloomStrength * 0.85})`;
   }
 
-  // Camera zoom / scale based on charge ratio
-  const shellScale = 1 + ratio * 0.015;
-
+  // Camera zoom / scale (fixed 1.0 to eliminate black edge exposure on high energy)
   state.shake = 0;
-  elements.shell.style.transform = `translate(0, 0) scale(${shellScale})`;
+  elements.shell.style.transform = "none";
 
   updateVisualState(now);
   updateStatus(now);
@@ -1980,17 +1920,38 @@ function bindEvents() {
     endStripSwipe(swipeLastX, swipeStartY);
   });
 
-  const triggerTap = (event) => {
-    if (event.target.closest("[data-form-index]")) {
+  let lastTapTime = 0;
+  const handlePointerOrTouch = (event) => {
+    if (event.target.closest("[data-form-index]") || event.target.closest("button") || event.target.closest(".level-left-arrow") || event.target.closest(".level-right-arrow")) {
       return;
     }
-    const point = event.touches ? event.touches[0] : event;
-    handleTap(point.clientX, point.clientY);
+
+    const now = performance.now();
+    if (now - lastTapTime < 40) {
+      return;
+    }
+    lastTapTime = now;
+
+    let clientX = 0;
+    let clientY = 0;
+    if (event.touches && event.touches.length > 0) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else if (event.changedTouches && event.changedTouches.length > 0) {
+      clientX = event.changedTouches[0].clientX;
+      clientY = event.changedTouches[0].clientY;
+    } else {
+      clientX = event.clientX || 0;
+      clientY = event.clientY || 0;
+    }
+
+    handleTap(clientX, clientY);
   };
 
-  elements.arena.addEventListener("pointerdown", triggerTap);
-  elements.tapCallout.addEventListener("pointerdown", triggerTap);
-  elements.introOverlay.addEventListener("pointerdown", triggerTap);
+  elements.arena.addEventListener("pointerdown", handlePointerOrTouch);
+  elements.arena.addEventListener("touchstart", handlePointerOrTouch, { passive: true });
+  elements.tapCallout.addEventListener("pointerdown", handlePointerOrTouch);
+  elements.introOverlay.addEventListener("pointerdown", handlePointerOrTouch);
 
   elements.arena.addEventListener("keydown", (event) => {
     if (event.repeat) {
@@ -2098,19 +2059,16 @@ function initVideo() {
   };
 
   state.transitionVideo = createVideo("./public/assets/transformation_transition.mp4", false);
-  if (!isLiteMode()) {
-    state.impactVideo = createVideo("./public/assets/istockphoto-1144855437-640_adpp_is.mp4", false);
-    state.lightningVideo1 = createVideo("./public/assets/istockphoto-1610125395-640_adpp_is.mp4", false);
-    state.lightningVideo2 = createVideo("./public/assets/km_20260716_1440p_60f_20260716_135312.mp4", false);
-    state.baseLightningVideo = createVideo("./public/assets/level_1_1.mp4", true);
-    state.beastLightningVideo = createVideo("./public/assets/super_saiyan_beast.mp4", true);
-    state.ssj123LightningVideo = createVideo("./public/assets/ssj123_lightning.mp4", true);
-    state.superUltraVideo = createVideo("./public/assets/super_ultra.mp4", true);
-    state.falseSsjVideo = createVideo("./public/assets/false_ssj.mp4", true);
-    state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
-  }
+  state.impactVideo = createVideo("./public/assets/istockphoto-1144855437-640_adpp_is.mp4", false);
+  state.lightningVideo1 = createVideo("./public/assets/istockphoto-1610125395-640_adpp_is.mp4", false);
+  state.lightningVideo2 = createVideo("./public/assets/km_20260716_1440p_60f_20260716_135312.mp4", false);
+  state.baseLightningVideo = createVideo("./public/assets/level_1_1.mp4", true);
+  state.beastLightningVideo = createVideo("./public/assets/super_saiyan_beast.mp4", true);
+  state.ssj123LightningVideo = createVideo("./public/assets/ssj123_lightning.mp4", true);
+  state.superUltraVideo = createVideo("./public/assets/super_ultra.mp4", true);
+  state.falseSsjVideo = createVideo("./public/assets/false_ssj.mp4", true);
+  state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
 
-  // Keep videos attached in DOM for desktop playback stability without forcing every decoder on mobile.
   const hiddenVideoContainer = document.createElement("div");
   hiddenVideoContainer.id = "hiddenVideoContainer";
   hiddenVideoContainer.style.position = "fixed";
@@ -2125,17 +2083,15 @@ function initVideo() {
   document.body.appendChild(hiddenVideoContainer);
 
   hiddenVideoContainer.appendChild(state.transitionVideo);
-  if (!isLiteMode()) {
-    hiddenVideoContainer.appendChild(state.impactVideo);
-    hiddenVideoContainer.appendChild(state.lightningVideo1);
-    hiddenVideoContainer.appendChild(state.lightningVideo2);
-    hiddenVideoContainer.appendChild(state.baseLightningVideo);
-    hiddenVideoContainer.appendChild(state.beastLightningVideo);
-    hiddenVideoContainer.appendChild(state.ssj123LightningVideo);
-    hiddenVideoContainer.appendChild(state.superUltraVideo);
-    hiddenVideoContainer.appendChild(state.falseSsjVideo);
-    hiddenVideoContainer.appendChild(state.kaiokenVideo);
-  }
+  hiddenVideoContainer.appendChild(state.impactVideo);
+  hiddenVideoContainer.appendChild(state.lightningVideo1);
+  hiddenVideoContainer.appendChild(state.lightningVideo2);
+  hiddenVideoContainer.appendChild(state.baseLightningVideo);
+  hiddenVideoContainer.appendChild(state.beastLightningVideo);
+  hiddenVideoContainer.appendChild(state.ssj123LightningVideo);
+  hiddenVideoContainer.appendChild(state.superUltraVideo);
+  hiddenVideoContainer.appendChild(state.falseSsjVideo);
+  hiddenVideoContainer.appendChild(state.kaiokenVideo);
 }
 
 function preloadAllAssets() {
@@ -2148,43 +2104,23 @@ function preloadAllAssets() {
     "./public/assets/backgrounds/level-2-crater.jpg",
     "./public/assets/backgrounds/level-3-crater.jpg"
   ];
-  const eagerFormCount = isLiteMode() ? 4 : 8;
 
-  // Tier 1: Initial & Level 1 / Level 2 forms (immediate priority)
-  GAME_DATA.forms.slice(0, eagerFormCount).forEach((form) => {
+  GAME_DATA.forms.forEach((form) => {
     if (form.stand) initialUrls.push(form.stand);
     if (form.power) initialUrls.push(form.power);
     if (form.aura) initialUrls.push(form.aura);
   });
 
   initialUrls.forEach((url) => {
-    const img = new Image();
-    img.src = url;
-    state.imageCache[url] = img;
-    if (img.decode) {
-      img.decode().catch(() => {});
+    if (!state.imageCache[url]) {
+      const img = new Image();
+      img.src = url;
+      state.imageCache[url] = img;
+      if (img.decode) {
+        img.decode().catch(() => {});
+      }
     }
   });
-
-  // Tier 2: Higher Level 3 forms (deferred background preload)
-  const deferredPreload = () => {
-    GAME_DATA.forms.slice(eagerFormCount).forEach((form) => {
-      [form.stand, form.power, form.aura].forEach((url) => {
-        if (url && !state.imageCache[url]) {
-          const img = new Image();
-          img.src = url;
-          state.imageCache[url] = img;
-          if (img.decode) img.decode().catch(() => {});
-        }
-      });
-    });
-  };
-
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(deferredPreload, { timeout: 2000 });
-  } else {
-    setTimeout(deferredPreload, 1500);
-  }
 }
 
 function bootstrap() {

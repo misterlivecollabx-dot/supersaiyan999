@@ -42,13 +42,20 @@ img {
 html,
 body {
   margin: 0;
-  min-height: 100%;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  height: calc(var(--real-vh, 1vh) * 100);
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  overscroll-behavior: none;
   background:
     radial-gradient(circle at top, rgba(97, 161, 255, 0.24), transparent 30%),
     linear-gradient(180deg, #02040d 0%, #090d1b 45%, #02040d 100%);
   color: var(--text-main);
   font-family: "Avenir Next Condensed", "Arial Narrow", "Franklin Gothic Medium", sans-serif;
-  overflow: hidden;
 }
 
 body {
@@ -64,11 +71,21 @@ button {
 .game-shell {
   position: relative;
   width: min(100vw, var(--shell-width));
-  height: 100dvh;
+  height: 100%;
+  height: calc(var(--real-vh, 1vh) * 100);
+  max-height: calc(var(--real-vh, 1vh) * 100);
+  margin: 0 auto;
   overflow: hidden;
   background: #01040d;
-  transform-origin: center center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: var(--safe-top) 10px var(--safe-bottom);
+  box-sizing: border-box;
   isolation: isolate;
+  touch-action: none;
+  overscroll-behavior: none;
   border-radius: clamp(0px, 3vw, 28px);
   box-shadow:
     0 0 0 1px rgba(255, 205, 94, 0.3),
@@ -113,19 +130,13 @@ button {
   overflow: hidden;
 }
 
-.bg-image {
+.bg-image,
+#backgroundCraterLayer {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(calc(1.02 + var(--charge) * 0.02));
+  transform: scale(1.02);
   transition: opacity 200ms ease;
-  will-change: transform;
-}
-
-#backgroundCraterLayer {
-  transform: scale(calc(1.02 + var(--charge) * 0.02));
-  transition: opacity 250ms ease;
-  will-change: transform;
 }
 
 .bg-drift,
@@ -156,7 +167,6 @@ button {
     );
   mix-blend-mode: screen;
   opacity: calc(var(--intensity) * 0.16);
-  transform: translateY(calc(var(--charge) * 16px));
   filter: blur(1px);
 }
 
@@ -167,7 +177,6 @@ button {
   mix-blend-mode: screen;
   opacity: calc(var(--charge) * 0.16);
   filter: blur(2px);
-  transform: scale(calc(1 + var(--charge) * 0.03));
 }
 
 .bg-vignette {
@@ -197,9 +206,9 @@ button {
 .screen-flash {
   pointer-events: none;
   background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.55) 28%, transparent 68%);
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.85) 0%, rgba(255, 248, 220, 0.45) 35%, transparent 75%);
   opacity: 0;
-  mix-blend-mode: screen;
+  z-index: 15;
 }
 
 .transform-blast,
@@ -213,40 +222,29 @@ button {
   inset: 22% 12% 18%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.96) 0%, color-mix(in srgb, var(--accent-color) 72%, #fff3cc) 18%, color-mix(in srgb, var(--aura-color) 55%, transparent) 34%, transparent 70%);
-  mix-blend-mode: screen;
+    radial-gradient(circle, rgba(255, 255, 255, 0.88) 0%, color-mix(in srgb, var(--accent-color) 72%, #fff3cc) 18%, color-mix(in srgb, var(--aura-color) 55%, transparent) 34%, transparent 70%);
   opacity: 0;
   transform: scale(0.45);
-  filter: blur(8px);
 }
 
 .top-hud {
-  position: absolute;
-  top: var(--safe-top);
-  left: 18px;
-  right: 18px;
-  display: block;
-  z-index: 20;
-  transform: scale(var(--hud-scale));
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  z-index: 9999;
+  transform: scale(var(--hud-scale)) translateZ(0);
   transform-origin: top center;
+  pointer-events: auto;
+  isolation: isolate;
 }
 
+/* Solid background without GPU backdrop-filter blur thrashing */
 .top-panel,
 .energy-panel,
 .form-chip,
 .intro-card {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-@media (max-width: 768px) {
-  .top-panel,
-  .energy-panel,
-  .form-chip,
-  .intro-card {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .top-panel {
@@ -424,13 +422,17 @@ button {
 }
 
 .arena {
-  position: absolute;
-  inset: var(--arena-top) 0 var(--arena-bottom);
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   outline: none;
   z-index: 2;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .charge-lens {
@@ -463,10 +465,8 @@ button {
   height: 62%;
   border-radius: 50% 50% 32% 32%;
   background:
-    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--aura-color) 16%, transparent) 22%, color-mix(in srgb, var(--accent-color) 28%, transparent) 74%, transparent 100%);
-  filter: blur(28px);
+    radial-gradient(ellipse at center, color-mix(in srgb, var(--accent-color) 24%, transparent) 0%, color-mix(in srgb, var(--aura-color) 12%, transparent) 60%, transparent 100%);
   opacity: calc(var(--charge) * 0.4);
-  mix-blend-mode: screen;
 }
 
 .heat-haze {
@@ -474,10 +474,8 @@ button {
   width: 62%;
   height: 54%;
   background:
-    radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.16), transparent 48%);
+    radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.12), transparent 60%);
   opacity: calc(var(--charge) * 0.18);
-  filter: blur(24px);
-  mix-blend-mode: screen;
 }
 
 .ground-dust {
@@ -487,22 +485,21 @@ button {
   height: 18%;
   transform: translateX(-50%) scale(0.92);
   background:
-    radial-gradient(circle at 30% 52%, rgba(220, 188, 132, 0.28), transparent 24%),
-    radial-gradient(circle at 50% 44%, rgba(220, 188, 132, 0.34), transparent 28%),
-    radial-gradient(circle at 72% 56%, rgba(220, 188, 132, 0.26), transparent 24%);
-  filter: blur(16px);
+    radial-gradient(circle at 30% 52%, rgba(220, 188, 132, 0.22), transparent 40%),
+    radial-gradient(circle at 50% 44%, rgba(220, 188, 132, 0.26), transparent 45%),
+    radial-gradient(circle at 72% 56%, rgba(220, 188, 132, 0.20), transparent 40%);
   opacity: 0;
 }
 
 .character-stack {
   position: relative;
-  width: min(82vw, var(--character-width));
-  height: min(73vh, var(--character-height));
+  width: min(80vw, var(--character-width));
+  height: min(65vh, calc(var(--character-height) * 0.88));
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  transform: translateY(calc(var(--character-lift) + var(--charge) * -8px)) scale(calc(1 + var(--charge) * 0.025));
-  transition: transform 140ms ease-out;
+  transform: translateY(var(--character-lift));
+  margin-bottom: 6px;
 }
 
 .charge-waves,
@@ -661,12 +658,7 @@ button {
   transform: translateX(-50%);
   background:
     radial-gradient(circle at 50% 14%, color-mix(in srgb, var(--aura-color) 34%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(255, 196, 96, 0.44), transparent 62%);
-  mask:
-    radial-gradient(circle at 50% 92%, black 0%, transparent 58%),
-    linear-gradient(90deg, transparent 0%, black 20%, black 80%, transparent 100%);
-  opacity: 0.5;
-  filter: blur(8px);
+    linear-gradient(180deg, rgba(255, 196, 96, 0.35), transparent 70%);
   opacity: calc(0.16 + var(--charge) * 0.42);
 }
 
@@ -679,11 +671,9 @@ button {
   transform: translateX(-50%);
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.48) 50%, transparent 80%);
   border-radius: 50%;
-  filter: blur(3px);
   pointer-events: none;
   z-index: 1;
-  opacity: calc(0.85 - var(--charge) * 0.35);
-  transition: opacity 180ms ease, transform 180ms ease;
+  opacity: 0.65;
 }
 
 .impact-floor {
@@ -691,21 +681,21 @@ button {
   width: 76%;
   height: 24px;
   background:
-    radial-gradient(circle, color-mix(in srgb, var(--aura-color) 38%, transparent) 0%, transparent 72%);
-  filter: blur(16px);
+    radial-gradient(ellipse at center, color-mix(in srgb, var(--aura-color) 38%, transparent) 0%, transparent 80%);
   opacity: calc(var(--charge) * 0.48);
 }
 
 .bottom-hud {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: var(--safe-bottom);
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  z-index: 9999;
   display: grid;
-  gap: 10px;
-  z-index: 20;
-  transform: scale(var(--hud-scale));
+  gap: 6px;
+  transform: scale(var(--hud-scale)) translateZ(0);
   transform-origin: bottom center;
+  pointer-events: auto;
+  isolation: isolate;
 }
 
 .energy-panel {
@@ -722,7 +712,15 @@ button {
 }
 
 .energy-head {
-  display: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: #ffda73;
+  margin-bottom: 6px;
+  text-shadow: 0 0 8px rgba(255, 191, 82, 0.4);
 }
 
 .energy-bar {
@@ -753,7 +751,6 @@ button {
   box-shadow:
     inset 0 0 24px rgba(255, 255, 255, 0.42),
     0 0 20px rgba(255, 204, 84, 0.36);
-  transition: width 80ms linear;
 }
 
 .energy-glow {
@@ -941,20 +938,10 @@ button {
   animation: transform-burst 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.game-shell.is-vanishing .sprite-layer {
-  opacity: 0;
-  transform: translateX(calc(-50% + var(--sprite-offset-x))) translateY(calc(var(--sprite-offset-y) - 10px)) scale(0.78);
-  filter:
-    drop-shadow(0 0 24px var(--accent-color, #8cf0ff))
-    brightness(1.45);
-}
-
+.game-shell.is-vanishing .sprite-layer,
 .game-shell.is-reappearing .sprite-layer {
   opacity: 1;
-  transform: translateX(calc(-50% + var(--sprite-offset-x))) translateY(var(--sprite-offset-y)) scale(1.08);
-  filter:
-    drop-shadow(0 0 28px var(--accent-color, #8cf0ff))
-    brightness(1.12);
+  transform: translateX(calc(-50% + var(--sprite-offset-x))) translateY(var(--sprite-offset-y)) scale(1.02);
 }
 
 .game-shell.is-transforming .energy-distortion {
