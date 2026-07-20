@@ -965,40 +965,40 @@ function spawnAuraEmbers() {
   });
 
   // Continuous Electric Lightning Arcs (Bijli Effect)
-  if (charging || form.level >= 2) {
-    const chance = charging ? 0.70 : 0.30;
+  if (charging || form.level >= 1) {
+    const chance = charging ? 0.95 : 0.45;
     if (Math.random() < chance) {
       spawnArc({
-        radius: 75 + Math.random() * 90,
-        life: 0.14 + Math.random() * 0.12,
-        width: 1.8 + tapIntensity() * 2.8,
-        jitter: 18,
-        arcSpan: 0.85,
+        radius: 65 + Math.random() * 85,
+        life: 0.16 + Math.random() * 0.14,
+        width: 2.2 + tapIntensity() * 3.0,
+        jitter: 22,
+        arcSpan: 0.9,
         color: Math.random() > 0.35 ? form.accentColor : "#ffffff",
       });
-      if (Math.random() < 0.2) {
+      if (Math.random() < 0.25) {
         playLightningSound();
       }
     }
   }
 
   // Spawns tight body-hugging sparks (animating body lines)
-  if (Math.random() < (charging ? 0.48 : 0.24)) {
+  if (Math.random() < (charging ? 0.85 : 0.45)) {
     let sparkColor;
     const formKey = getForm().key;
     if (formKey === "false-ssj") {
       const colors = ["#ff3b30", "#8b0000", "#ff8d2f", "#222222"];
       sparkColor = colors[Math.floor(Math.random() * colors.length)];
     } else {
-      sparkColor = Math.random() > 0.4 ? getForm().accentColor : "#ffffff";
+      sparkColor = Math.random() > 0.3 ? getForm().accentColor : "#ffffff";
     }
 
     spawnArc({
       radius: 35 + Math.random() * 55, // tight around Goku's torso and waist
-      life: 0.08 + Math.random() * 0.08, // fast flicker
-      width: 1.0 + Math.random() * 1.5,
-      jitter: 10 + Math.random() * 12,
-      arcSpan: 0.3 + Math.random() * 0.4,
+      life: 0.12 + Math.random() * 0.10, // fast flicker
+      width: 1.8 + Math.random() * 2.2,
+      jitter: 14 + Math.random() * 14,
+      arcSpan: 0.4 + Math.random() * 0.4,
       color: sparkColor
     });
   }
@@ -1263,16 +1263,19 @@ function renderParticles(deltaSeconds) {
       continue;
     }
     const alpha = arc.life / arc.maxLife;
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.shadowColor = arc.color || "#ffffff";
+    ctx.shadowBlur = 14;
     ctx.beginPath();
-    ctx.strokeStyle = `${arc.color}${Math.round(alpha * 255)
-      .toString(16)
-      .padStart(2, "0")}`;
-    ctx.lineWidth = arc.width * alpha;
+    ctx.strokeStyle = arc.color || "#ffffff";
+    ctx.globalAlpha = Math.min(1, alpha * 1.6);
+    ctx.lineWidth = (arc.width || 2.5) * 1.6;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     arc.points.forEach((point, pointIndex) => {
-      const driftX = (Math.random() - 0.5) * 10 * alpha;
-      const driftY = (Math.random() - 0.5) * 10 * alpha;
+      const driftX = (Math.random() - 0.5) * 12 * alpha;
+      const driftY = (Math.random() - 0.5) * 12 * alpha;
       if (pointIndex === 0) {
         ctx.moveTo(point.x + driftX, point.y + driftY);
       } else {
@@ -1280,6 +1283,7 @@ function renderParticles(deltaSeconds) {
       }
     });
     ctx.stroke();
+    ctx.restore();
   }
 
   const rect = elements.characterStack.getBoundingClientRect();
