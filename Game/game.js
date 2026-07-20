@@ -1248,7 +1248,7 @@ function renderParticles(deltaSeconds) {
       h: spriteRect.height
     };
 
-    const compMode = (lv === state.transitionVideo) ? "source-over" : "screen";
+    const compMode = "screen";
     drawKeyedVideoFrame(lv, destRect, compMode);
   }
 
