@@ -778,8 +778,8 @@ function resizeCanvas() {
   const bottomHudHeight = bottomHudEl ? bottomHudEl.getBoundingClientRect().height : 80;
 
   const availableArenaHeight = Math.max(120, vh - topHudHeight - bottomHudHeight);
-  const characterHeight = Math.max(100, Math.min(480, Math.floor(availableArenaHeight * 0.58)));
-  const characterWidth = Math.max(95, Math.min(320, Math.floor(Math.min(shellWidth * 0.65, characterHeight * 0.58))));
+  const characterHeight = Math.max(110, Math.min(520, Math.floor(availableArenaHeight * 0.65)));
+  const characterWidth = Math.max(100, Math.min(350, Math.floor(Math.min(shellWidth * 0.70, characterHeight * 0.62))));
 
   document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
   document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
