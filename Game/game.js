@@ -1697,34 +1697,29 @@ function animate(now) {
   const LEVEL_2_CRATER_IMAGE = "url('./public/assets/backgrounds/level-2-crater.jpg')";
   const LEVEL_3_CRATER_IMAGE = "url('./public/assets/backgrounds/level-3-crater.jpg')";
 
-  if (form.level === 3) {
-    if (charging) {
-      if (elements.backgroundCrater.style.backgroundImage !== LEVEL_3_CRATER_IMAGE) {
-        elements.backgroundCrater.style.backgroundImage = LEVEL_3_CRATER_IMAGE;
-      }
-      elements.backgroundCrater.style.opacity = "1";
-    } else {
-      elements.backgroundCrater.style.opacity = "0";
+  if (form.level === 3 && charging) {
+    if (elements.backgroundCrater.style.backgroundImage !== LEVEL_3_CRATER_IMAGE) {
+      elements.backgroundCrater.style.backgroundImage = LEVEL_3_CRATER_IMAGE;
     }
-  } else if (form.level === 2) {
-    // Main background (level-2.webp) kabhi nahi badalta — sirf overlay on/off hoti hai
-    if (charging) {
-      if (elements.backgroundCrater.style.backgroundImage !== LEVEL_2_CRATER_IMAGE) {
-        elements.backgroundCrater.style.backgroundImage = LEVEL_2_CRATER_IMAGE;
-      }
-      elements.backgroundCrater.style.opacity = "1";
-    } else {
-      elements.backgroundCrater.style.opacity = "0";
+  } else if (form.level === 2 && charging) {
+    if (elements.backgroundCrater.style.backgroundImage !== LEVEL_2_CRATER_IMAGE) {
+      elements.backgroundCrater.style.backgroundImage = LEVEL_2_CRATER_IMAGE;
     }
   } else if (form.level === 1 && state.craterActive) {
-    // Level 1 crater — jump-slam ke baad dikhta hai
-    const L1 = "url('./public/assets/backgrounds/level-1-crater.webp')"; // ← Level 1 crater yahan badlein
+    const L1 = "url('./public/assets/backgrounds/level-1-crater.webp')";
     if (elements.backgroundCrater.style.backgroundImage !== L1) {
       elements.backgroundCrater.style.backgroundImage = L1;
     }
-    elements.backgroundCrater.style.opacity = "1";
-  } else {
-    elements.backgroundCrater.style.opacity = "0";
+  }
+
+  const targetCraterOpacity = (
+    (form.level === 3 && charging) ||
+    (form.level === 2 && charging) ||
+    (form.level === 1 && state.craterActive)
+  ) ? "1" : "0";
+
+  if (elements.backgroundCrater.style.opacity !== targetCraterOpacity) {
+    elements.backgroundCrater.style.opacity = targetCraterOpacity;
   }
 
   const emberChance = isLiteMode() ? (charging ? 0.2 : 0.06) : (charging ? 0.54 : 0.18);
@@ -1811,7 +1806,10 @@ function animate(now) {
   elements.energyGlow.style.width = percent;
 
   state.flashStrength = Math.max(0, state.flashStrength - deltaSeconds * 1.8);
-  elements.flash.style.opacity = `${state.flashStrength}`;
+  const targetFlashOpacity = state.flashStrength > 0.001 ? `${state.flashStrength.toFixed(3)}` : "0";
+  if (elements.flash.style.opacity !== targetFlashOpacity) {
+    elements.flash.style.opacity = targetFlashOpacity;
+  }
   state.bloomStrength = Math.max(0, state.bloomStrength - deltaSeconds * 2.4);
   if (elements.tapBloom) {
     elements.tapBloom.style.opacity = `${Math.min(0.9, state.bloomStrength * 0.9)}`;
