@@ -134,6 +134,16 @@ const GAME_DATA = {
 };
 
 const DEBUG_MODE = new URLSearchParams(window.location.search).has("debug");
+const MOBILE_VIDEO_OVERRIDES = {
+  "./public/assets/false_ssj.mp4": "./public/assets/false_ssj-mobile.mp4",
+  "./public/assets/kaioken.mp4": "./public/assets/kaioken-mobile.mp4",
+  "./public/assets/km_20260716_1440p_60f_20260716_135312.mp4": "./public/assets/km_20260716_1440p_60f_20260716_135312-mobile.mp4",
+  "./public/assets/level_1_1.mp4": "./public/assets/level_1_1-mobile.mp4",
+  "./public/assets/ssj123_lightning.mp4": "./public/assets/ssj123_lightning-mobile.mp4",
+  "./public/assets/super_saiyan_beast.mp4": "./public/assets/super_saiyan_beast-mobile.mp4",
+  "./public/assets/super_ultra.mp4": "./public/assets/super_ultra-mobile.mp4",
+  "./public/assets/transformation_transition.mp4": "./public/assets/transformation_transition-mobile.mp4",
+};
 
 for (const form of GAME_DATA.forms) {
   form.stand = `./public/assets/forms/${form.key}-stand.webp`;
@@ -228,7 +238,32 @@ const state = {
   offscreenLightningCtx: null,
   chargeStartTime: 0,
   currentBgSrc: null,
+  performanceMode: "full",
 };
+
+function detectPerformanceMode() {
+  const hasTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+  const compactViewport = window.matchMedia("(max-width: 768px)").matches || window.matchMedia("(max-height: 900px)").matches;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const limitedMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+  return hasTouch && (compactViewport || reducedMotion || limitedMemory) ? "mobile-lite" : "full";
+}
+
+function isLiteMode() {
+  return state.performanceMode === "mobile-lite";
+}
+
+function applyPerformanceMode() {
+  state.performanceMode = detectPerformanceMode();
+  elements.shell.classList.toggle("performance-lite", isLiteMode());
+}
+
+function resolveVideoSource(src) {
+  if (isLiteMode() && MOBILE_VIDEO_OVERRIDES[src]) {
+    return MOBILE_VIDEO_OVERRIDES[src];
+  }
+  return src;
+}
 
 function getForm(index = state.currentIndex) {
   return GAME_DATA.forms[index];
@@ -706,6 +741,7 @@ function initializeAudio() {
 }
 
 function resizeCanvas() {
+  applyPerformanceMode();
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const shellWidth = Math.min(vw, Math.max(280, Math.min(640, vh * 0.65)));
@@ -733,8 +769,8 @@ function resizeCanvas() {
   document.documentElement.style.setProperty("--character-width", `${characterWidth}px`);
   document.documentElement.style.setProperty("--character-height", `${characterHeight}px`);
 
-  const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window);
-  const maxDpr = isMobileDevice ? 1.25 : 2.0;
+  const isMobileDevice = window.innerWidth <= 768 || ("ontouchstart" in window);
+  const maxDpr = isLiteMode() ? 1.0 : (isMobileDevice ? 1.25 : 2.0);
   const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
   elements.canvas.width = Math.floor(shellWidth * dpr);
   elements.canvas.height = Math.floor(vh * dpr);
@@ -750,9 +786,15 @@ function tapIntensity() {
 }
 
 function spawnParticles(count, options = {}) {
+  if (isLiteMode()) {
+    count = Math.max(4, Math.ceil(count * 0.45));
+  }
+
   // Cap active particles for 60 FPS mobile performance
-  if (state.particles.length > 40) {
-    state.particles.splice(0, state.particles.length - 30);
+  const particleCap = isLiteMode() ? 22 : 40;
+  const particleTrimTarget = isLiteMode() ? 14 : 30;
+  if (state.particles.length > particleCap) {
+    state.particles.splice(0, state.particles.length - particleTrimTarget);
   }
 
   const rect = elements.characterStack.getBoundingClientRect();
@@ -781,8 +823,10 @@ function spawnParticles(count, options = {}) {
 }
 
 function spawnWave(options = {}) {
-  if (state.waves.length > 12) {
-    state.waves.splice(0, state.waves.length - 8);
+  const waveCap = isLiteMode() ? 6 : 12;
+  const waveTrimTarget = isLiteMode() ? 4 : 8;
+  if (state.waves.length > waveCap) {
+    state.waves.splice(0, state.waves.length - waveTrimTarget);
   }
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
@@ -801,8 +845,10 @@ function spawnWave(options = {}) {
 }
 
 function spawnArc(options = {}) {
-  if (state.arcs.length > 12) {
-    state.arcs.splice(0, state.arcs.length - 8);
+  const arcCap = isLiteMode() ? 6 : 12;
+  const arcTrimTarget = isLiteMode() ? 4 : 8;
+  if (state.arcs.length > arcCap) {
+    state.arcs.splice(0, state.arcs.length - arcTrimTarget);
   }
   const rect = elements.characterStack.getBoundingClientRect();
   const canvasRect = elements.canvas.getBoundingClientRect();
@@ -833,7 +879,7 @@ function spawnArc(options = {}) {
 }
 
 function spawnTapBurst(x, y) {
-  spawnParticles(14, {
+  spawnParticles(isLiteMode() ? 8 : 14, {
     x,
     y,
     speedMin: 18,
@@ -850,8 +896,10 @@ function spawnTapBurst(x, y) {
   
   // Electric Lightning Bolts (Bijli Effect on Tap)
   const form = getForm();
-  spawnArc({ radius: 55 + Math.random() * 55, life: 0.18, width: 2.6, jitter: 18, arcSpan: 0.85, color: form.accentColor });
-  spawnArc({ radius: 38 + Math.random() * 40, life: 0.14, width: 2.0, jitter: 14, arcSpan: 0.65, color: "#ffffff" });
+  if (!isLiteMode()) {
+    spawnArc({ radius: 55 + Math.random() * 55, life: 0.18, width: 2.6, jitter: 18, arcSpan: 0.85, color: form.accentColor });
+    spawnArc({ radius: 38 + Math.random() * 40, life: 0.14, width: 2.0, jitter: 14, arcSpan: 0.65, color: "#ffffff" });
+  }
 }
 
 function spawnAuraEmbers() {
@@ -1123,6 +1171,14 @@ function drawKeyedVideoFrame(video, destRect, compositeMode = "screen") {
   const vHeight = video.videoHeight || 360;
   if (vWidth <= 0 || vHeight <= 0) return;
 
+  if (isLiteMode()) {
+    ctx.save();
+    ctx.globalCompositeOperation = compositeMode;
+    ctx.drawImage(video, 0, 0, vWidth, vHeight, destRect.x, destRect.y, destRect.w, destRect.h);
+    ctx.restore();
+    return;
+  }
+
   const procW = 320;
   const procH = 180;
 
@@ -1181,7 +1237,7 @@ function renderParticles(deltaSeconds) {
     isActive = true;
   }
 
-  if (isActive && lv && elements.spriteLayer) {
+  if (isActive && lv && elements.spriteLayer && (!isLiteMode() || lv === state.transitionVideo)) {
     const spriteRect = elements.spriteLayer.getBoundingClientRect();
     const canvasRect = elements.canvas.getBoundingClientRect();
 
@@ -1410,8 +1466,7 @@ function animate(now) {
       // Play reversed rock video once
       state.videoActive = true;
       if (state.impactVideo) {
-        state.impactVideo.currentTime = 0;
-        state.impactVideo.play().catch(() => { });
+        playLazyVideo(state.impactVideo);
       }
 
       // Play lightning video once (sequential sequence: video1 then video2)
@@ -1419,8 +1474,7 @@ function animate(now) {
       state.activeLightningVideo = state.lightningVideo1;
       state.lightningTimer = 8.0; // total budget for both videos
       if (state.lightningVideo1) {
-        state.lightningVideo1.currentTime = 0;
-        state.lightningVideo1.play().catch(() => { });
+        playLazyVideo(state.lightningVideo1);
       }
       if (state.lightningVideo2) {
         state.lightningVideo2.currentTime = 0;
@@ -1440,7 +1494,7 @@ function animate(now) {
       }
     } else if (state.videoActive) {
       if (state.impactVideo.paused) {
-        state.impactVideo.play().catch(() => { });
+        playLazyVideo(state.impactVideo);
       }
       if (state.impactVideo.ended || state.impactVideo.currentTime >= 5.0) {
         state.videoActive = false;
@@ -1602,8 +1656,7 @@ function animate(now) {
         if (state.activeLightningVideo === state.lightningVideo1) {
           if (state.lightningVideo1.ended || state.lightningVideo1.currentTime >= state.lightningVideo1.duration - 0.1) {
             state.activeLightningVideo = state.lightningVideo2;
-            state.lightningVideo2.currentTime = 0;
-            state.lightningVideo2.play().catch(() => { });
+            playLazyVideo(state.lightningVideo2);
           }
         }
 
@@ -1674,11 +1727,12 @@ function animate(now) {
     elements.backgroundCrater.style.opacity = "0";
   }
 
-  if (Math.random() < (charging ? 0.54 : 0.18)) {
+  const emberChance = isLiteMode() ? (charging ? 0.2 : 0.06) : (charging ? 0.54 : 0.18);
+  if (Math.random() < emberChance) {
     spawnAuraEmbers();
   }
 
-  if (charging && Math.random() < 0.45) {
+  if (charging && Math.random() < (isLiteMode() ? 0.14 : 0.45)) {
     spawnInflowParticles(2);
   }
 
@@ -1992,6 +2046,9 @@ function initRocks() {
 
 function playLazyVideo(video) {
   if (!video) return;
+  if (isLiteMode() && video !== state.transitionVideo) {
+    return;
+  }
   if (video.preload === "none") {
     video.preload = "auto";
     video.load();
@@ -2004,7 +2061,7 @@ function initVideo() {
   const createVideo = (src, loop = true) => {
     const v = document.createElement("video");
     v.crossOrigin = "anonymous";
-    v.src = src;
+    v.src = resolveVideoSource(src);
     v.muted = true;
     v.playsInline = true;
     v.setAttribute("playsinline", "");
@@ -2026,7 +2083,7 @@ function initVideo() {
   state.kaiokenVideo = createVideo("./public/assets/kaioken.mp4", true);
   state.transitionVideo = createVideo("./public/assets/transformation_transition.mp4", false);
 
-  // Active hidden video container in DOM to keep mobile GPU video decoders active at 60 FPS
+  // Keep videos attached in DOM for desktop playback stability without forcing every decoder on mobile.
   const hiddenVideoContainer = document.createElement("div");
   hiddenVideoContainer.id = "hiddenVideoContainer";
   hiddenVideoContainer.style.position = "fixed";
@@ -2040,16 +2097,18 @@ function initVideo() {
   hiddenVideoContainer.style.overflow = "hidden";
   document.body.appendChild(hiddenVideoContainer);
 
-  hiddenVideoContainer.appendChild(state.impactVideo);
-  hiddenVideoContainer.appendChild(state.lightningVideo1);
-  hiddenVideoContainer.appendChild(state.lightningVideo2);
-  hiddenVideoContainer.appendChild(state.baseLightningVideo);
-  hiddenVideoContainer.appendChild(state.beastLightningVideo);
-  hiddenVideoContainer.appendChild(state.ssj123LightningVideo);
-  hiddenVideoContainer.appendChild(state.superUltraVideo);
-  hiddenVideoContainer.appendChild(state.falseSsjVideo);
-  hiddenVideoContainer.appendChild(state.kaiokenVideo);
   hiddenVideoContainer.appendChild(state.transitionVideo);
+  if (!isLiteMode()) {
+    hiddenVideoContainer.appendChild(state.impactVideo);
+    hiddenVideoContainer.appendChild(state.lightningVideo1);
+    hiddenVideoContainer.appendChild(state.lightningVideo2);
+    hiddenVideoContainer.appendChild(state.baseLightningVideo);
+    hiddenVideoContainer.appendChild(state.beastLightningVideo);
+    hiddenVideoContainer.appendChild(state.ssj123LightningVideo);
+    hiddenVideoContainer.appendChild(state.superUltraVideo);
+    hiddenVideoContainer.appendChild(state.falseSsjVideo);
+    hiddenVideoContainer.appendChild(state.kaiokenVideo);
+  }
 }
 
 function preloadAllAssets() {
@@ -2080,6 +2139,7 @@ function preloadAllAssets() {
 }
 
 function bootstrap() {
+  applyPerformanceMode();
   preloadAllAssets();
   resizeCanvas();
   renderFormStrip();

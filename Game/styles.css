@@ -1030,6 +1030,60 @@ button {
   }
 }
 
+.game-shell.performance-lite .mobile-bezel,
+.game-shell.performance-lite .screen-frame,
+.game-shell.performance-lite .bg-drift,
+.game-shell.performance-lite .speed-lines,
+.game-shell.performance-lite .energy-distortion,
+.game-shell.performance-lite .charge-waves,
+.game-shell.performance-lite .ground-dust {
+  display: none;
+}
+
+.game-shell.performance-lite .bg-image,
+.game-shell.performance-lite #backgroundCraterLayer,
+.game-shell.performance-lite .character-stack,
+.game-shell.performance-lite .tap-bloom,
+.game-shell.performance-lite .energy-fill,
+.game-shell.performance-lite .energy-glow {
+  transition-duration: 0.01ms;
+}
+
+.game-shell.performance-lite .bg-image,
+.game-shell.performance-lite .aura-layer,
+.game-shell.performance-lite .sprite-layer,
+.game-shell.performance-lite .ground-crack,
+.game-shell.performance-lite .ground-shadow,
+.game-shell.performance-lite .impact-floor,
+.game-shell.performance-lite .transform-blast {
+  filter: none !important;
+}
+
+.game-shell.performance-lite .aura-layer {
+  opacity: calc(var(--charge) * 0.55);
+  mix-blend-mode: normal;
+}
+
+.game-shell.performance-lite .sprite-layer,
+.game-shell.performance-lite .rock,
+.game-shell.performance-lite .top-hud,
+.game-shell.performance-lite .bottom-hud {
+  will-change: auto;
+}
+
+.game-shell.performance-lite .top-panel,
+.game-shell.performance-lite .energy-panel,
+.game-shell.performance-lite .form-chip,
+.game-shell.performance-lite .intro-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.game-shell.performance-lite .game-shell,
+.game-shell.performance-lite {
+  box-shadow: none;
+}
+
 @media (max-width: 380px) {
   .top-hud,
   .bottom-hud {
@@ -1237,4 +1291,3 @@ img:not([src]) {
 .level-right-arrow:active {
   transform: scale(0.95);
 }
-
